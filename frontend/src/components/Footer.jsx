@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap } from "lucide-react";
+import { Brain } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -10,15 +10,16 @@ export default function Footer() {
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
-                <GraduationCap className="h-5 w-5" />
+                <Brain className="h-5 w-5" />
               </div>
               <span className="text-[15px] font-extrabold tracking-tight text-white">
-                MyConsultant
+                Belajar Biar Pintar
               </span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-slate-400">
-              Simulator persiapan mandiri USKP Tingkat A — mudah, terarah, dan
-              terukur dengan suasana ujian CAT yang mendekati aslinya.
+              Aplikasi pembelajaran Ujian Kompetensi Pajak Tingkat A, B, dan C —
+              belajar lebih mudah, terarah, dan terukur dengan suasana ujian yang
+              mendekati aslinya.
             </p>
           </div>
 
@@ -32,14 +33,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-bold text-white">Mata Ujian USKP A</h4>
+            <h4 className="text-sm font-bold text-white">Tingkat Ujian</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
-              <li>PPh OP & SPT PPh OP</li>
-              <li>KUP, PPSP, PP</li>
-              <li>PPh Pot/Put</li>
-              <li>PPN & SPT PPN</li>
-              <li>PBB-P5L & Bea Meterai</li>
-              <li>Kode Etik Profesi</li>
+              <li>Tingkat A — Dasar</li>
+              <li>Tingkat B — Menengah</li>
+              <li>Tingkat C — Lanjutan</li>
             </ul>
           </div>
 
@@ -53,7 +51,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t border-slate-800 pt-6 text-center text-xs text-slate-500">
-          © {new Date().getFullYear()} MyConsultant — Simulator USKP A. Dibuat untuk persiapan mandiri.
+          © {new Date().getFullYear()} Belajar Biar Pintar — Aplikasi Pembelajaran Ujian Kompetensi Pajak.
         </div>
       </div>
     </footer>

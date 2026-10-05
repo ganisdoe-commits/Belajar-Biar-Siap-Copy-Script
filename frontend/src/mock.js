@@ -496,8 +496,8 @@ export const PRE_EXAM_RULES = [
 
 // Statistik untuk landing page
 export const LANDING_STATS = [
-  { value: "250+", label: "Soal USKP A" },
-  { value: "30.000+", label: "Sesi tryout berlangsung" },
+  { value: "250+", label: "Soal Ujian Pajak" },
+  { value: "30.000+", label: "Sesi latihan berlangsung" },
   { value: "1.000+", label: "Pengguna aktif" },
 ];
 
@@ -520,8 +520,54 @@ export const TESTIMONIALS = [
     author: "Member, Mei 2025",
   },
   {
-    text: "Beruntung join lebih awal dan beli paket lifetime, harga earlybird ternyata beneran promo besar.",
-    author: "Member, Desember 2024",
+    text: "Belajar jadi lebih terarah. Bisa mengulang bagian yang masih lemah tanpa batas sampai benar-benar paham.",
+    author: "Pengguna, Desember 2024",
+  },
+];
+
+// Susunan mata ujian per tingkat (A, B, C) — untuk landing page
+export const LEVELS = [
+  {
+    id: "A",
+    title: "Tingkat A",
+    tagline: "Dasar Kompetensi Perpajakan",
+    accent: "#2563eb",
+    days: 3,
+    subjects: [
+      { name: "PPh OP & SPT PPh OP", durasi: "2 jam" },
+      { name: "KUP, PPSP, dan PP", durasi: "1,5 jam" },
+      { name: "PPh Pot/Put", durasi: "2 jam" },
+      { name: "PPN & SPT PPN", durasi: "1,5 jam" },
+      { name: "PBB-P5L", durasi: "1,5 jam" },
+    ],
+  },
+  {
+    id: "B",
+    title: "Tingkat B",
+    tagline: "Kompetensi Menengah",
+    accent: "#0891b2",
+    days: 3,
+    subjects: [
+      { name: "PPh Badan & SPT PPh Badan", durasi: "2 jam" },
+      { name: "KUP, PPSP, dan PP", durasi: "1,5 jam" },
+      { name: "PPh Pot/Put", durasi: "2 jam" },
+      { name: "PPN & SPT PPN", durasi: "1,5 jam" },
+      { name: "Akuntansi Perpajakan", durasi: "2 jam" },
+    ],
+  },
+  {
+    id: "C",
+    title: "Tingkat C",
+    tagline: "Kompetensi Lanjutan",
+    accent: "#7c3aed",
+    days: 3,
+    subjects: [
+      { name: "PPh Badan & SPT PPh Badan", durasi: "2 jam" },
+      { name: "Pajak Internasional", durasi: "2 jam" },
+      { name: "PPh Pot/Put", durasi: "2 jam" },
+      { name: "Akuntansi Perpajakan", durasi: "2 jam" },
+      { name: "Kode Etik Profesi", durasi: "1 jam" },
+    ],
   },
 ];
 

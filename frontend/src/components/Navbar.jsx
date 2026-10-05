@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, GraduationCap } from "lucide-react";
+import { Menu, X, Brain } from "lucide-react";
 import { Button } from "./ui/button";
 
 const NAV_LINKS = [
@@ -18,14 +18,14 @@ export default function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm shadow-blue-600/30">
-            <GraduationCap className="h-5 w-5" />
+            <Brain className="h-5 w-5" />
           </div>
           <div className="leading-tight">
             <span className="block text-[15px] font-extrabold tracking-tight text-slate-900">
-              MyConsultant
+              Belajar Biar Pintar
             </span>
             <span className="block text-[10px] font-semibold uppercase tracking-wider text-blue-600">
-              Simulator USKP A
+              Ujian Kompetensi Pajak
             </span>
           </div>
         </Link>
