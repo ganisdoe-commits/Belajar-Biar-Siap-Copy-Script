@@ -16,7 +16,7 @@ export const SUBJECTS = [
     short: "PPh OP",
     durationMin: 120,
     totalQuestions: 40,
-    color: "#2563eb",
+    color: "#4338CA",
     desc: "Pajak Penghasilan Orang Pribadi dan Surat Pemberitahuan Tahunan PPh OP.",
   },
   {
@@ -531,7 +531,7 @@ export const LEVELS = [
     id: "A",
     title: "Tingkat A",
     tagline: "Dasar Kompetensi Perpajakan",
-    accent: "#2563eb",
+    accent: "#4338CA",
     days: 3,
     subjects: [
       { name: "PPh OP & SPT PPh OP", durasi: "2 jam" },
@@ -545,7 +545,7 @@ export const LEVELS = [
     id: "B",
     title: "Tingkat B",
     tagline: "Kompetensi Menengah",
-    accent: "#0891b2",
+    accent: "#D97706",
     days: 3,
     subjects: [
       { name: "PPh Badan & SPT PPh Badan", durasi: "2 jam" },
@@ -559,7 +559,7 @@ export const LEVELS = [
     id: "C",
     title: "Tingkat C",
     tagline: "Kompetensi Lanjutan",
-    accent: "#7c3aed",
+    accent: "#15803D",
     days: 3,
     subjects: [
       { name: "PPh Badan & SPT PPh Badan", durasi: "2 jam" },

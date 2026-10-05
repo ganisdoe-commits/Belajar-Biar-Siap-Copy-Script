@@ -19,7 +19,7 @@ export default function PreExam() {
 
   if (!subject) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-900 text-white">
+      <div className="flex min-h-screen items-center justify-center bg-indigo-950 text-white">
         Mata ujian tidak ditemukan.
       </div>
     );
@@ -44,14 +44,14 @@ export default function PreExam() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Fake SEB top bar */}
-      <div className="flex items-center justify-between border-b border-slate-700 bg-slate-950 px-5 py-3 text-sm">
-        <div className="flex items-center gap-2 font-semibold text-slate-300">
-          <Lock className="h-4 w-4 text-green-400" /> Safe Exam Browser — Mode Terkunci
+    <div className="min-h-screen bg-indigo-950 text-indigo-100">
+      {/* Secure top bar */}
+      <div className="flex items-center justify-between border-b border-indigo-800 bg-[#15123A] px-5 py-3 text-sm">
+        <div className="flex items-center gap-2 font-semibold text-indigo-200">
+          <Lock className="h-4 w-4 text-emerald-400" /> Mode Ujian Terkunci
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <ShieldCheck className="h-4 w-4 text-green-400" /> CAT Kementerian Keuangan (Simulasi)
+        <div className="flex items-center gap-2 text-xs text-indigo-400">
+          <ShieldCheck className="h-4 w-4 text-emerald-400" /> Ujian Kompetensi Pajak (Simulasi)
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default function PreExam() {
         <div className="lg:col-span-3">
           <button
             onClick={() => navigate("/dashboard")}
-            className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-white"
+            className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-300 hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" /> Kembali ke daftar mata ujian
           </button>
@@ -72,19 +72,19 @@ export default function PreExam() {
             {subject.code}
           </span>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white">{subject.name}</h1>
-          <p className="mt-2 text-slate-400">{subject.desc}</p>
+          <p className="mt-2 text-indigo-300">{subject.desc}</p>
 
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-400"><FileText className="h-4 w-4" /> Jumlah Soal</div>
+            <div className="rounded-xl border border-indigo-800 bg-indigo-900/50 p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300"><FileText className="h-4 w-4" /> Jumlah Soal</div>
               <div className="mt-1 text-xl font-extrabold text-white">{subject.totalQuestions}</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-400"><Clock className="h-4 w-4" /> Durasi</div>
+            <div className="rounded-xl border border-indigo-800 bg-indigo-900/50 p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300"><Clock className="h-4 w-4" /> Durasi</div>
               <div className="mt-1 text-xl font-extrabold text-white">{subject.durationMin} mnt</div>
             </div>
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-400"><CheckCircle2 className="h-4 w-4" /> Nilai Maks</div>
+            <div className="rounded-xl border border-indigo-800 bg-indigo-900/50 p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300"><CheckCircle2 className="h-4 w-4" /> Nilai Maks</div>
               <div className="mt-1 text-xl font-extrabold text-white">100</div>
             </div>
           </div>
@@ -93,10 +93,10 @@ export default function PreExam() {
             <div className="flex items-center gap-2 font-bold text-amber-300">
               <AlertTriangle className="h-5 w-5" /> Tata Tertib Ujian
             </div>
-            <ul className="mt-3 space-y-2.5 text-sm text-slate-300">
+            <ul className="mt-3 space-y-2.5 text-sm text-indigo-200">
               {PRE_EXAM_RULES.map((r, i) => (
                 <li key={i} className="flex gap-2.5">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-700 text-[10px] font-bold text-slate-300">{i + 1}</span>
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-800 text-[10px] font-bold text-indigo-200">{i + 1}</span>
                   {r}
                 </li>
               ))}
@@ -106,19 +106,19 @@ export default function PreExam() {
 
         {/* Right: token */}
         <div className="lg:col-span-2">
-          <div className="sticky top-6 rounded-2xl border border-slate-700 bg-slate-800 p-6">
+          <div className="sticky top-6 rounded-2xl border border-indigo-800 bg-indigo-900 p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600/20 text-blue-400">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
                 <KeyRound className="h-5 w-5" />
               </div>
               <div>
                 <div className="text-sm font-bold text-white">Masukkan Token</div>
-                <div className="text-xs text-slate-400">Dibagikan pengawas sebelum sesi dimulai</div>
+                <div className="text-xs text-indigo-300">Dibagikan pengawas sebelum sesi dimulai</div>
               </div>
             </div>
 
-            <div className="mt-5 rounded-lg border border-slate-700 bg-slate-900/60 p-3 text-xs text-slate-400">
-              <div className="font-semibold text-slate-300">Peserta</div>
+            <div className="mt-5 rounded-lg border border-indigo-800 bg-indigo-950/60 p-3 text-xs text-indigo-300">
+              <div className="font-semibold text-indigo-200">Peserta</div>
               <div className="mt-0.5">{candidate ? `${candidate.name} — ${candidate.id}` : "Belum login"}</div>
             </div>
 
@@ -126,29 +126,29 @@ export default function PreExam() {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder="Masukkan token ujian"
-              className="mt-4 h-12 border-slate-600 bg-slate-900 text-center text-lg font-bold uppercase tracking-widest text-white placeholder:text-slate-500 placeholder:tracking-normal placeholder:text-sm placeholder:font-normal"
+              className="mt-4 h-12 border-indigo-700 bg-indigo-950 text-center text-lg font-bold uppercase tracking-widest text-white placeholder:text-indigo-500 placeholder:tracking-normal placeholder:text-sm placeholder:font-normal"
             />
-            <p className="mt-2 text-center text-xs text-slate-500">
-              Token contoh: <span className="font-semibold text-blue-400">{EXAM_TOKENS.join(" · ")}</span>
+            <p className="mt-2 text-center text-xs text-indigo-400">
+              Token contoh: <span className="font-semibold text-amber-400">{EXAM_TOKENS.join(" · ")}</span>
             </p>
 
-            <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-sm text-slate-300">
+            <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-sm text-indigo-200">
               <input
                 type="checkbox"
                 checked={agree}
                 onChange={(e) => setAgree(e.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-blue-600"
+                className="mt-0.5 h-4 w-4 accent-amber-500"
               />
               Saya memahami dan menyetujui seluruh tata tertib ujian di atas.
             </label>
 
             <Button
               onClick={handleStart}
-              className="mt-5 h-12 w-full bg-blue-600 text-base font-bold hover:bg-blue-500"
+              className="mt-5 h-12 w-full bg-amber-500 text-base font-bold text-indigo-950 hover:bg-amber-400"
             >
               Mulai Ujian
             </Button>
-            <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-slate-500">
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-indigo-400">
               <Lock className="h-3.5 w-3.5" /> Timer berjalan segera setelah ujian dimulai.
             </p>
           </div>

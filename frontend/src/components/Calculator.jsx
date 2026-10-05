@@ -50,31 +50,31 @@ export default function Calculator() {
       if (!display.includes(".")) setDisplay(display + ".");
       return;
     }
-    // digit
     if (fresh) { setDisplay(b); setFresh(false); }
     else setDisplay(display === "0" ? b : display + b);
   };
 
   return (
     <div className="w-full">
-      <div className="mb-3 overflow-hidden rounded-xl bg-slate-900 px-4 py-4 text-right">
+      <div className="mb-3 overflow-hidden rounded-xl bg-indigo-950 px-4 py-4 text-right">
         <div className="truncate text-3xl font-bold text-white">{display}</div>
       </div>
       <div className="grid grid-cols-4 gap-2">
         {BTNS.map((b) => {
-          const isOp = ["÷", "×", "−", "+", "="].includes(b);
+          const isEquals = b === "=";
+          const isOp = ["÷", "×", "−", "+"].includes(b);
           const isFn = ["C", "±", "%"].includes(b);
           return (
             <button
               key={b}
               onClick={() => press(b)}
               className={`h-12 rounded-lg text-lg font-bold transition-colors ${
-                b === "0" ? "col-span-1" : ""
-              } ${
-                isOp
-                  ? "bg-blue-600 text-white hover:bg-blue-500"
+                isEquals
+                  ? "bg-amber-500 text-indigo-950 hover:bg-amber-400"
+                  : isOp
+                  ? "bg-indigo-700 text-white hover:bg-indigo-600"
                   : isFn
-                  ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                  ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
                   : "bg-slate-100 text-slate-800 hover:bg-slate-200"
               }`}
             >

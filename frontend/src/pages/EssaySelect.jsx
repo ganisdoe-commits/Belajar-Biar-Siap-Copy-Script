@@ -9,18 +9,18 @@ export default function EssaySelect() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FFFEFB]">
       <Navbar />
       <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
         <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-700">
+          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-700">
             <PenLine className="h-3.5 w-3.5" /> Mode Esai (Bonus)
           </span>
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl">
             Latihan Soal Esai / Uraian
           </h1>
           <p className="mt-3 text-lg text-slate-600">
-            Panduan resmi USKP A menggunakan format pilihan ganda. Mode esai ini
+            Panduan resmi menggunakan format pilihan ganda. Mode esai ini
             disediakan sebagai latihan tambahan untuk melatih penjelasan dan
             perhitungan secara terstruktur, lengkap dengan kunci jawaban model.
           </p>
@@ -32,7 +32,7 @@ export default function EssaySelect() {
             return (
               <div
                 key={s.id}
-                className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/5"
+                className="group flex flex-col rounded-2xl border border-indigo-100 bg-white p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-900/5"
               >
                 <span
                   className="inline-flex w-fit items-center rounded-lg px-2.5 py-1 text-xs font-bold text-white"
@@ -40,14 +40,14 @@ export default function EssaySelect() {
                 >
                   {s.code}
                 </span>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">{s.name}</h3>
+                <h3 className="mt-4 text-lg font-bold text-indigo-950">{s.name}</h3>
                 <div className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
                   <FileText className="h-4 w-4" /> {count} soal esai
                 </div>
                 <Button
                   disabled={count === 0}
                   onClick={() => navigate(`/esai/${s.id}`)}
-                  className="mt-5 w-full bg-purple-600 font-semibold hover:bg-purple-700 disabled:opacity-50"
+                  className="mt-5 w-full bg-indigo-700 font-semibold hover:bg-indigo-900 disabled:opacity-50"
                 >
                   Mulai Latihan <ArrowRight className="ml-1.5 h-4 w-4" />
                 </Button>
