@@ -119,6 +119,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "✅ TESTED: GET /api/subjects returns 200 with 6 subjects. Each subject includes id, name, totalQuestions, essayCount. GET /api/subjects/{id} returns 200 with single subject detail. GET /api/subjects/{invalid_id} correctly returns 404. All tests passed."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ RE-TESTED: GET /api/subjects now includes NEW FIELDS: bankSize, examCount, totalQuestions (=min(examCount,bankSize)), essayCount. KUP subject verified: bankSize=100, examCount=40, totalQuestions=40, essayCount=25. All 6 subjects have correct fields."
   - task: "Public: get exam questions WITHOUT answers"
     implemented: true
     working: true
@@ -133,6 +136,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "✅ TESTED: GET /api/subjects/{id}/exam returns 200 with structure {subject, duration_sec, questions}. CRITICAL SECURITY CHECK PASSED: Questions contain ONLY id, number, question, options fields. NO 'answer' or 'pembahasan' fields leaked to client. Tested with 5 questions."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ RE-TESTED: GET /api/subjects/{kup_id}/exam now returns RANDOM SAMPLE of exactly 40 questions from 100-question bank. CRITICAL SECURITY: Questions contain ONLY id, number, question, options (NO answer/pembahasan). RANDOMIZATION VERIFIED: Called endpoint twice, got different question sets (16/40 overlap, confirming random sampling). All checks passed."
   - task: "Public: submit exam -> server-side scoring + review"
     implemented: true
     working: true
@@ -147,6 +153,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "✅ TESTED: POST /api/exam/submit returns 200 with {result, review}. Score calculation verified: correct/total*100 rounded to 2 decimals. Passed logic verified: score>=60. Counts consistency verified: correct+wrong+unanswered=total. Review items include answer, selected, is_correct, pembahasan. Result saved to database and retrievable via GET /api/results/{candidate_id}."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ RE-TESTED: POST /api/exam/submit with NEW question_ids parameter. CRITICAL CHECKS PASSED: (1) result.total=40 (NOT 100, scores only presented questions), (2) Counts consistent: correct+wrong+unanswered=40, (3) Score=round(correct/40*100,2), (4) Passed=(score>=60), (5) Review has 40 items with answer/selected/is_correct/pembahasan, (6) Review order matches question_ids. BACKWARD COMPAT: Submit WITHOUT question_ids still works (scores against all questions). All tests passed."
   - task: "Public: essays list + results by candidate"
     implemented: true
     working: true
@@ -161,6 +170,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "✅ TESTED: GET /api/subjects/{id}/essays returns 200 with list of essays including model_answer field. GET /api/results/{candidate_id} returns 200 with list of saved results for candidate. Tested with candidate_id 'BBP-TEST-001' and successfully retrieved 1 result."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ RE-TESTED: GET /api/subjects/{kup_id}/essays returns exactly 25 essays with question and model_answer fields. All checks passed."
   - task: "Admin auth + CRUD (subjects, questions, essays) + bulk import + results"
     implemented: true
     working: true
@@ -175,6 +187,9 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "✅ TESTED: POST /api/admin/login with correct password returns 200 with token 'bbp-admin-2026-secret-token'. Wrong password returns 401. Admin endpoints without auth return 401. Admin endpoints with Bearer token return 200. GET /api/admin/questions includes 'answer' field (verified). CRUD operations tested: POST/PUT/DELETE for questions, essays, subjects - all working. Bulk import: POST /api/admin/questions/bulk successfully inserted 2 questions. GET /api/admin/results returns all saved results. DELETE subject cascades to questions/essays. All 50 tests passed."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ RE-TESTED: Admin login works (password=admin123, token=bbp-admin-2026-secret-token). GET /api/admin/questions?subject_id={kup_id} with Bearer token returns 100 questions WITH 'answer' field. All checks passed."
 
 frontend:
   - task: "Frontend integration with backend API"
@@ -203,7 +218,7 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: false
 
 test_plan:
@@ -214,6 +229,8 @@ test_plan:
 
 agent_communication:
     -agent: "main"
-    -message: "Backend built and seeded. Please test all /api endpoints. IMPORTANT: verify /api/subjects/{id}/exam does NOT leak 'answer' or 'pembahasan'. Verify scoring on /api/exam/submit (score=correct/total*100, passed>=60). Admin login password is admin123; protected routes need header Authorization: Bearer bbp-admin-2026-secret-token. Test admin CRUD + bulk import + unauthorized access returns 401. Use existing seeded subjects (fetch IDs from GET /api/subjects)."
+    -message: "RETEST needed after changes: (1) GET /api/subjects/{id}/exam now returns a RANDOM sample of examCount (default 40) questions from the bank (KUP has 100 questions, examCount=40, so exam should return exactly 40, no 'answer'/'pembahasan' leaked). (2) Public subjects now include bankSize, examCount, and totalQuestions=min(examCount,bankSize). (3) POST /api/exam/submit now accepts question_ids (list of presented question ids); scoring must be based ONLY on those (total=len(question_ids)); score=round(correct/total*100,2), passed>=60; review returned for those ids. Backward compat: if question_ids empty, score against all. Admin endpoints unchanged (password admin123, Bearer bbp-admin-2026-secret-token). KUP subject now has 100 MCQ + 25 essays imported. Please focus on exam sampling + submit scoring with question_ids."
     -agent: "testing"
     -message: "✅ ALL 50 BACKEND TESTS PASSED! Comprehensive testing completed: (1) Public endpoints: subjects list/detail, exam retrieval, exam submission with scoring, essays, results by candidate - all working. (2) CRITICAL SECURITY: Verified exam endpoint does NOT leak answer/pembahasan fields. (3) Scoring logic verified: correct/total*100, passed>=60, counts consistent. (4) Admin auth: login working, wrong password returns 401, protected endpoints require Bearer token. (5) Admin CRUD: questions, essays, subjects - create/update/delete all working. (6) Bulk import: successfully inserted multiple questions. (7) Admin results endpoint working. Backend is production-ready. Frontend integration can proceed."
+    -agent: "testing"
+    -message: "✅ ALL 36 RE-TESTS PASSED! New exam logic verified: (1) GET /api/subjects includes bankSize, examCount, totalQuestions fields. KUP: bankSize=100, examCount=40, totalQuestions=40, essayCount=25 ✓. (2) GET /api/subjects/{kup_id}/exam returns exactly 40 random questions from 100-question bank. NO answer/pembahasan leaked ✓. Randomization verified (different sets on repeated calls) ✓. (3) POST /api/exam/submit with question_ids: result.total=40 (NOT 100) ✓, counts consistent ✓, score=round(correct/40*100,2) ✓, passed=(score>=60) ✓, review has 40 items in correct order ✓. (4) Backward compat: submit WITHOUT question_ids scores against all questions ✓. (5) Regression: KUP essays=25 ✓, admin login works ✓, admin questions include answer field ✓. Backend changes are working correctly. Ready for production."

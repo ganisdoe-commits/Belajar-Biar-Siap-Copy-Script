@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone
+import random
 
 import seed_data
 
@@ -41,6 +42,7 @@ class SubjectIn(BaseModel):
     short: str = ""
     level: str = "A"
     durationMin: int = 90
+    examCount: int = 40
     color: str = "#4338CA"
     desc: str = ""
     order: int = 99
@@ -83,6 +85,7 @@ class ExamSubmit(BaseModel):
     subject_id: str
     candidate: Candidate
     answers: Dict[str, str] = {}  # {question_id: selected_key}
+    question_ids: List[str] = []  # urutan soal yang disajikan pada sesi ini
 
 
 class LoginIn(BaseModel):
@@ -164,16 +167,20 @@ async def _subject_qcount(sid: str) -> int:
     return await db.questions.count_documents({"subject_id": sid})
 
 
+async def _attach_public_counts(s: dict) -> dict:
+    bank = await _subject_qcount(s["id"])
+    ec = int(s.get("examCount", 40))
+    s["bankSize"] = bank
+    s["examCount"] = ec
+    s["totalQuestions"] = min(ec, bank) if bank else 0
+    s["essayCount"] = await db.essays.count_documents({"subject_id": s["id"]})
+    return s
+
+
 @api_router.get("/subjects")
 async def get_subjects():
     subs = await db.subjects.find().sort("order", 1).to_list(100)
-    out = []
-    for s in subs:
-        s = clean(s)
-        s["totalQuestions"] = await _subject_qcount(s["id"])
-        s["essayCount"] = await db.essays.count_documents({"subject_id": s["id"]})
-        out.append(s)
-    return out
+    return [await _attach_public_counts(clean(s)) for s in subs]
 
 
 @api_router.get("/subjects/{sid}")
@@ -181,10 +188,7 @@ async def get_subject(sid: str):
     s = await db.subjects.find_one({"id": sid})
     if not s:
         raise HTTPException(404, "Mata ujian tidak ditemukan")
-    s = clean(s)
-    s["totalQuestions"] = await _subject_qcount(sid)
-    s["essayCount"] = await db.essays.count_documents({"subject_id": sid})
-    return s
+    return await _attach_public_counts(clean(s))
 
 
 @api_router.get("/subjects/{sid}/exam")
@@ -193,9 +197,15 @@ async def get_exam(sid: str):
     if not s:
         raise HTTPException(404, "Mata ujian tidak ditemukan")
     s = clean(s)
-    qs = await db.questions.find({"subject_id": sid}).sort("number", 1).to_list(1000)
+    all_qs = await db.questions.find({"subject_id": sid}).to_list(2000)
+    exam_count = int(s.get("examCount", 40))
+    if len(all_qs) > exam_count:
+        chosen = random.sample(all_qs, exam_count)
+    else:
+        chosen = all_qs
+        random.shuffle(chosen)
     questions = []
-    for i, q in enumerate(qs, start=1):
+    for i, q in enumerate(chosen, start=1):
         q = clean(q)
         questions.append({
             "id": q["id"],
@@ -203,6 +213,9 @@ async def get_exam(sid: str):
             "question": q["question"],
             "options": q["options"],
         })
+    s["bankSize"] = len(all_qs)
+    s["examCount"] = exam_count
+    s["totalQuestions"] = len(questions)
     return {
         "subject": s,
         "duration_sec": int(s.get("durationMin", 90)) * 60,
@@ -216,7 +229,14 @@ async def submit_exam(payload: ExamSubmit):
     if not s:
         raise HTTPException(404, "Mata ujian tidak ditemukan")
     s = clean(s)
-    qs = await db.questions.find({"subject_id": payload.subject_id}).sort("number", 1).to_list(1000)
+    if payload.question_ids:
+        found = await db.questions.find(
+            {"subject_id": payload.subject_id, "id": {"$in": payload.question_ids}}
+        ).to_list(2000)
+        qmap = {clean(q)["id"]: q for q in found}
+        qs = [qmap[qid] for qid in payload.question_ids if qid in qmap]
+    else:
+        qs = await db.questions.find({"subject_id": payload.subject_id}).sort("number", 1).to_list(2000)
     total = len(qs)
     correct = 0
     answered = 0

@@ -81,6 +81,7 @@ export const ExamProvider = ({ children }) => {
       subject_id: s.subject.id,
       candidate: candidate || { name: "Peserta", id: "" },
       answers: s.answers,
+      question_ids: s.questions.map((q) => q.id),
     });
     setSession({ ...s, submitted: true, result: data.result, review: data.review });
     return data.result;
