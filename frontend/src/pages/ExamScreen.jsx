@@ -11,7 +11,6 @@ import {
 } from "../components/ui/dialog";
 import Calculator from "../components/Calculator";
 import { useExam } from "../context/ExamContext";
-import { SUBJECTS } from "../mock";
 
 function fmt(sec) {
   const h = String(Math.floor(sec / 3600)).padStart(2, "0");
@@ -32,7 +31,7 @@ export default function ExamScreen() {
   const [showSubmit, setShowSubmit] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
 
-  const subject = SUBJECTS.find((s) => s.id === subjectId);
+  const subject = session?.subject;
 
   useEffect(() => {
     if (!session || session.subject.id !== subjectId) {
@@ -44,8 +43,8 @@ export default function ExamScreen() {
     if (session) setRemaining(session.durationSec);
   }, [session]);
 
-  const doSubmit = useCallback(() => {
-    submitSession();
+  const doSubmit = useCallback(async () => {
+    await submitSession();
     navigate("/result");
   }, [submitSession, navigate]);
 
@@ -117,7 +116,7 @@ export default function ExamScreen() {
           </div>
 
           <div className="mt-3 flex-1 rounded-2xl border border-indigo-100 bg-white p-6 lg:p-8">
-            <p className="text-[17px] font-semibold leading-relaxed text-indigo-950">{q.q}</p>
+            <p className="text-[17px] font-semibold leading-relaxed text-indigo-950">{q.question}</p>
             <div className="mt-6 space-y-3">
               {q.options.map((o) => {
                 const selected = answers[q.id] === o.key;

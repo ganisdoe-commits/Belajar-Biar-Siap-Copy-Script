@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
-import { buildQuestions } from "../mock";
+import React, { createContext, useContext, useState, useCallback, useRef } from "react";
+import * as api from "../api";
 
 const ExamContext = createContext(null);
 
@@ -9,10 +9,9 @@ export const useExam = () => {
   return ctx;
 };
 
-const STORAGE_KEY = "uskp_candidate";
+const STORAGE_KEY = "bbp_candidate";
 
 export const ExamProvider = ({ children }) => {
-  // Candidate profile (disimpan di browser untuk suasana login)
   const [candidate, setCandidate] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -22,17 +21,15 @@ export const ExamProvider = ({ children }) => {
     }
   });
 
-  // Sesi ujian aktif
-  const [session, setSession] = useState(null);
-  // Riwayat hasil ujian
-  const [history, setHistory] = useState(() => {
-    try {
-      const raw = localStorage.getItem("uskp_history");
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [session, setSessionState] = useState(null);
+  const sessionRef = useRef(null);
+  const setSession = useCallback((val) => {
+    setSessionState((prev) => {
+      const next = typeof val === "function" ? val(prev) : val;
+      sessionRef.current = next;
+      return next;
+    });
+  }, []);
 
   const loginCandidate = useCallback((data) => {
     setCandidate(data);
@@ -44,26 +41,24 @@ export const ExamProvider = ({ children }) => {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  // Mulai sesi ujian untuk mata ujian tertentu
-  const startSession = useCallback((subject) => {
-    const questions = buildQuestions(subject.id, subject.totalQuestions);
+  const startSession = useCallback(async (subject) => {
+    const data = await api.getExam(subject.id);
     const newSession = {
-      subject,
-      questions,
-      answers: {}, // { questionId: "A" }
-      flags: {}, // { questionId: true }
+      subject: data.subject,
+      questions: data.questions,
+      answers: {},
+      flags: {},
       notes: "",
-      startedAt: Date.now(),
-      durationSec: subject.durationMin * 60,
+      durationSec: data.duration_sec,
       submitted: false,
     };
     setSession(newSession);
     return newSession;
-  }, []);
+  }, [setSession]);
 
   const setAnswer = useCallback((qid, key) => {
     setSession((s) => (s ? { ...s, answers: { ...s.answers, [qid]: key } } : s));
-  }, []);
+  }, [setSession]);
 
   const toggleFlag = useCallback((qid) => {
     setSession((s) => {
@@ -73,48 +68,25 @@ export const ExamProvider = ({ children }) => {
       else flags[qid] = true;
       return { ...s, flags };
     });
-  }, []);
+  }, [setSession]);
 
   const setNotes = useCallback((text) => {
     setSession((s) => (s ? { ...s, notes: text } : s));
-  }, []);
+  }, [setSession]);
 
-  const submitSession = useCallback(() => {
-    let result = null;
-    setSession((s) => {
-      if (!s) return s;
-      let correct = 0;
-      s.questions.forEach((q) => {
-        if (s.answers[q.id] === q.answer) correct += 1;
-      });
-      const score = +(correct * 2.5).toFixed(2);
-      result = {
-        id: Date.now(),
-        subjectId: s.subject.id,
-        subjectName: s.subject.name,
-        total: s.questions.length,
-        correct,
-        wrong: Object.keys(s.answers).length - correct,
-        unanswered: s.questions.length - Object.keys(s.answers).length,
-        score,
-        passed: score >= 60,
-        date: new Date().toISOString(),
-      };
-      return { ...s, submitted: true, result };
+  const submitSession = useCallback(async () => {
+    const s = sessionRef.current;
+    if (!s) return null;
+    const data = await api.submitExam({
+      subject_id: s.subject.id,
+      candidate: candidate || { name: "Peserta", id: "" },
+      answers: s.answers,
     });
-    // simpan riwayat
-    setTimeout(() => {
-      setHistory((h) => {
-        if (!result) return h;
-        const updated = [result, ...h].slice(0, 20);
-        localStorage.setItem("uskp_history", JSON.stringify(updated));
-        return updated;
-      });
-    }, 0);
-    return result;
-  }, []);
+    setSession({ ...s, submitted: true, result: data.result, review: data.review });
+    return data.result;
+  }, [candidate, setSession]);
 
-  const clearSession = useCallback(() => setSession(null), []);
+  const clearSession = useCallback(() => setSession(null), [setSession]);
 
   return (
     <ExamContext.Provider
@@ -129,7 +101,6 @@ export const ExamProvider = ({ children }) => {
         setNotes,
         submitSession,
         clearSession,
-        history,
       }}
     >
       {children}

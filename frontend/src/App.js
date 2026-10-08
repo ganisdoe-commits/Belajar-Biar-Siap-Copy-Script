@@ -9,6 +9,8 @@ import ExamScreen from "./pages/ExamScreen";
 import ResultScreen from "./pages/ResultScreen";
 import EssaySelect from "./pages/EssaySelect";
 import EssayScreen from "./pages/EssayScreen";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
             <Route path="/result" element={<ResultScreen />} />
             <Route path="/esai" element={<EssaySelect />} />
             <Route path="/esai/:subjectId" element={<EssayScreen />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </BrowserRouter>
         <Toaster />

@@ -101,3 +101,119 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Simulator CAT Ujian Kompetensi Pajak (Belajar Biar Pintar). Backend menyimpan soal + kunci jawaban di server, skoring server-side, panel admin untuk kelola soal, simpan hasil ujian."
+
+backend:
+  - task: "Public: list subjects & subject detail (with totalQuestions/essayCount)"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "GET /api/subjects and /api/subjects/{id}. Seeded 6 subjects Tingkat A."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ TESTED: GET /api/subjects returns 200 with 6 subjects. Each subject includes id, name, totalQuestions, essayCount. GET /api/subjects/{id} returns 200 with single subject detail. GET /api/subjects/{invalid_id} correctly returns 404. All tests passed."
+  - task: "Public: get exam questions WITHOUT answers"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "GET /api/subjects/{id}/exam must NOT include answer/pembahasan fields."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ TESTED: GET /api/subjects/{id}/exam returns 200 with structure {subject, duration_sec, questions}. CRITICAL SECURITY CHECK PASSED: Questions contain ONLY id, number, question, options fields. NO 'answer' or 'pembahasan' fields leaked to client. Tested with 5 questions."
+  - task: "Public: submit exam -> server-side scoring + review"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "POST /api/exam/submit computes score=correct/total*100, passed>=60, saves result, returns review with answers+pembahasan."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ TESTED: POST /api/exam/submit returns 200 with {result, review}. Score calculation verified: correct/total*100 rounded to 2 decimals. Passed logic verified: score>=60. Counts consistency verified: correct+wrong+unanswered=total. Review items include answer, selected, is_correct, pembahasan. Result saved to database and retrievable via GET /api/results/{candidate_id}."
+  - task: "Public: essays list + results by candidate"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "GET /api/subjects/{id}/essays and GET /api/results/{candidate_id}."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ TESTED: GET /api/subjects/{id}/essays returns 200 with list of essays including model_answer field. GET /api/results/{candidate_id} returns 200 with list of saved results for candidate. Tested with candidate_id 'BBP-TEST-001' and successfully retrieved 1 result."
+  - task: "Admin auth + CRUD (subjects, questions, essays) + bulk import + results"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "POST /api/admin/login (password=admin123 -> token). All /api/admin/* require Bearer ADMIN_TOKEN. CRUD + bulk + results."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ TESTED: POST /api/admin/login with correct password returns 200 with token 'bbp-admin-2026-secret-token'. Wrong password returns 401. Admin endpoints without auth return 401. Admin endpoints with Bearer token return 200. GET /api/admin/questions includes 'answer' field (verified). CRUD operations tested: POST/PUT/DELETE for questions, essays, subjects - all working. Bulk import: POST /api/admin/questions/bulk successfully inserted 2 questions. GET /api/admin/results returns all saved results. DELETE subject cascades to questions/essays. All 50 tests passed."
+
+frontend:
+  - task: "Frontend integration with backend API"
+    implemented: true
+    working: "NA"
+    file: "frontend/src"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Integrated: api.js, ExamContext (async start/submit via API), Dashboard/PreExam/ExamScreen/ResultScreen/EssaySelect/EssayScreen fetch from API. Verified manually via screenshots: exam flow (login->subject->token->exam->submit->result with server scoring) and admin panel (login, question list, add dialog) work. Not yet run through automated frontend testing agent (awaiting user permission)."
+  - task: "Admin panel (login + CRUD questions/essays + results)"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/admin, frontend/src/components/admin"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "AdminLogin + AdminDashboard (tabs) + QuestionManager/EssayManager/ResultsTable. Verified via screenshot."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    -agent: "main"
+    -message: "Backend built and seeded. Please test all /api endpoints. IMPORTANT: verify /api/subjects/{id}/exam does NOT leak 'answer' or 'pembahasan'. Verify scoring on /api/exam/submit (score=correct/total*100, passed>=60). Admin login password is admin123; protected routes need header Authorization: Bearer bbp-admin-2026-secret-token. Test admin CRUD + bulk import + unauthorized access returns 401. Use existing seeded subjects (fetch IDs from GET /api/subjects)."
+    -agent: "testing"
+    -message: "✅ ALL 50 BACKEND TESTS PASSED! Comprehensive testing completed: (1) Public endpoints: subjects list/detail, exam retrieval, exam submission with scoring, essays, results by candidate - all working. (2) CRITICAL SECURITY: Verified exam endpoint does NOT leak answer/pembahasan fields. (3) Scoring logic verified: correct/total*100, passed>=60, counts consistent. (4) Admin auth: login working, wrong password returns 401, protected endpoints require Bearer token. (5) Admin CRUD: questions, essays, subjects - create/update/delete all working. (6) Bulk import: successfully inserted multiple questions. (7) Admin results endpoint working. Backend is production-ready. Frontend integration can proceed."

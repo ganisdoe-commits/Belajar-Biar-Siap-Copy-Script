@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ShieldCheck, Lock, AlertTriangle, CheckCircle2, Clock, FileText, KeyRound, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Lock, AlertTriangle, CheckCircle2, Clock, FileText, KeyRound, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { useToast } from "../hooks/use-toast";
 import { useExam } from "../context/ExamContext";
-import { SUBJECTS, PRE_EXAM_RULES, EXAM_TOKENS } from "../mock";
+import { PRE_EXAM_RULES, EXAM_TOKENS } from "../mock";
+import { getSubject } from "../api";
 
 export default function PreExam() {
   const { subjectId } = useParams();
@@ -14,18 +15,37 @@ export default function PreExam() {
   const { toast } = useToast();
   const [token, setToken] = useState("");
   const [agree, setAgree] = useState(false);
+  const [subject, setSubject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [starting, setStarting] = useState(false);
 
-  const subject = SUBJECTS.find((s) => s.id === subjectId);
+  useEffect(() => {
+    let active = true;
+    getSubject(subjectId)
+      .then((s) => { if (active) setSubject(s); })
+      .catch(() => { if (active) setSubject(null); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [subjectId]);
 
-  if (!subject) {
+  if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-indigo-950 text-white">
-        Mata ujian tidak ditemukan.
+      <div className="flex min-h-screen items-center justify-center bg-indigo-950 text-indigo-200">
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Memuat...
       </div>
     );
   }
 
-  const handleStart = () => {
+  if (!subject) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-indigo-950 text-white">
+        Mata ujian tidak ditemukan.
+        <Button onClick={() => navigate("/dashboard")} className="bg-amber-500 text-indigo-950 hover:bg-amber-400">Kembali</Button>
+      </div>
+    );
+  }
+
+  const handleStart = async () => {
     if (!agree) {
       toast({ title: "Harap setujui tata tertib", description: "Centang persetujuan tata tertib ujian terlebih dahulu." });
       return;
@@ -39,13 +59,18 @@ export default function PreExam() {
       });
       return;
     }
-    startSession(subject);
-    navigate(`/exam/${subject.id}`);
+    try {
+      setStarting(true);
+      await startSession(subject);
+      navigate(`/exam/${subject.id}`);
+    } catch (e) {
+      toast({ title: "Gagal memulai ujian", description: "Terjadi kesalahan. Coba lagi.", variant: "destructive" });
+      setStarting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-indigo-950 text-indigo-100">
-      {/* Secure top bar */}
       <div className="flex items-center justify-between border-b border-indigo-800 bg-[#15123A] px-5 py-3 text-sm">
         <div className="flex items-center gap-2 font-semibold text-indigo-200">
           <Lock className="h-4 w-4 text-emerald-400" /> Mode Ujian Terkunci
@@ -56,7 +81,6 @@ export default function PreExam() {
       </div>
 
       <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 lg:grid-cols-5 lg:px-8">
-        {/* Left: info */}
         <div className="lg:col-span-3">
           <button
             onClick={() => navigate("/dashboard")}
@@ -65,10 +89,7 @@ export default function PreExam() {
             <ArrowLeft className="h-4 w-4" /> Kembali ke daftar mata ujian
           </button>
 
-          <span
-            className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold text-white"
-            style={{ backgroundColor: subject.color }}
-          >
+          <span className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold text-white" style={{ backgroundColor: subject.color }}>
             {subject.code}
           </span>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white">{subject.name}</h1>
@@ -104,7 +125,6 @@ export default function PreExam() {
           </div>
         </div>
 
-        {/* Right: token */}
         <div className="lg:col-span-2">
           <div className="sticky top-6 rounded-2xl border border-indigo-800 bg-indigo-900 p-6">
             <div className="flex items-center gap-3">
@@ -133,20 +153,12 @@ export default function PreExam() {
             </p>
 
             <label className="mt-5 flex cursor-pointer items-start gap-2.5 text-sm text-indigo-200">
-              <input
-                type="checkbox"
-                checked={agree}
-                onChange={(e) => setAgree(e.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-amber-500"
-              />
+              <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 accent-amber-500" />
               Saya memahami dan menyetujui seluruh tata tertib ujian di atas.
             </label>
 
-            <Button
-              onClick={handleStart}
-              className="mt-5 h-12 w-full bg-amber-500 text-base font-bold text-indigo-950 hover:bg-amber-400"
-            >
-              Mulai Ujian
+            <Button onClick={handleStart} disabled={starting} className="mt-5 h-12 w-full bg-amber-500 text-base font-bold text-indigo-950 hover:bg-amber-400">
+              {starting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyiapkan...</>) : "Mulai Ujian"}
             </Button>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-indigo-400">
               <Lock className="h-3.5 w-3.5" /> Timer berjalan segera setelah ujian dimulai.
