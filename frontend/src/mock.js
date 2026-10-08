@@ -59,16 +59,6 @@ export const SUBJECTS = [
     color: "#d97706",
     desc: "PBB Perkebunan, Perhutanan, Pertambangan, Perikanan, dan sektor Lainnya serta Bea Meterai.",
   },
-  {
-    id: "etik",
-    code: "A3",
-    name: "Kode Etik Profesi",
-    short: "Etik",
-    durationMin: 60,
-    totalQuestions: 40,
-    color: "#dc2626",
-    desc: "Kode Etik dan Standar Profesi Konsultan Pajak Indonesia.",
-  },
 ];
 
 // Helper membuat soal contoh (akan diulang agar simulator terasa penuh)
@@ -535,10 +525,10 @@ export const LEVELS = [
     days: 3,
     subjects: [
       { name: "PPh OP & SPT PPh OP", durasi: "2 jam" },
-      { name: "KUP, PPSP, dan PP", durasi: "1,5 jam" },
+      { name: "KUP, PPSP, dan Pengadilan Pajak", durasi: "1,5 jam" },
       { name: "PPh Pot/Put", durasi: "2 jam" },
       { name: "PPN & SPT PPN", durasi: "1,5 jam" },
-      { name: "PBB-P5L", durasi: "1,5 jam" },
+      { name: "PBB-P5L & Bea Meterai", durasi: "1,5 jam" },
     ],
   },
   {
@@ -548,11 +538,14 @@ export const LEVELS = [
     accent: "#D97706",
     days: 3,
     subjects: [
-      { name: "PPh Badan & SPT PPh Badan", durasi: "2 jam" },
-      { name: "KUP, PPSP, dan PP", durasi: "1,5 jam" },
+      { name: "PPh OP & SPT PPh OP", durasi: "2 jam" },
+      { name: "KUP, PPSP, dan Pengadilan Pajak", durasi: "1,5 jam" },
       { name: "PPh Pot/Put", durasi: "2 jam" },
       { name: "PPN & SPT PPN", durasi: "1,5 jam" },
+      { name: "Bea Meterai", durasi: "1 jam" },
+      { name: "PBB-P5L", durasi: "1,5 jam" },
       { name: "Akuntansi Perpajakan", durasi: "2 jam" },
+      { name: "PPh Badan & SPT PPh Badan", durasi: "2 jam" },
     ],
   },
   {
@@ -562,11 +555,16 @@ export const LEVELS = [
     accent: "#15803D",
     days: 3,
     subjects: [
-      { name: "PPh Badan & SPT PPh Badan", durasi: "2 jam" },
-      { name: "Pajak Internasional", durasi: "2 jam" },
+      { name: "PPh OP & SPT PPh OP", durasi: "2 jam" },
+      { name: "KUP, PPSP, dan Pengadilan Pajak", durasi: "1,5 jam" },
       { name: "PPh Pot/Put", durasi: "2 jam" },
+      { name: "PPN & SPT PPN", durasi: "1,5 jam" },
+      { name: "Bea Meterai", durasi: "1 jam" },
+      { name: "PBB-P5L", durasi: "1,5 jam" },
       { name: "Akuntansi Perpajakan", durasi: "2 jam" },
-      { name: "Kode Etik Profesi", durasi: "1 jam" },
+      { name: "PPh Badan & SPT PPh Badan (DN)", durasi: "2 jam" },
+      { name: "PPh Badan (Transaksi Internasional)", durasi: "2 jam" },
+      { name: "Pajak Internasional", durasi: "2 jam" },
     ],
   },
 ];
