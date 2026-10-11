@@ -49,8 +49,16 @@ def test_subjects_total_and_levels(subjects):
     a = [s for s in subjects if s.get("level", "A") == "A"]
     b = [s for s in subjects if s.get("level") == "B"]
     assert len(a) == 5, f"Expected 5 A, got {len(a)}"
-    assert len(b) == 5, f"Expected 5 B, got {len(b)}"
-    assert len(subjects) >= 10
+    assert len(b) == 8, f"Expected 8 B, got {len(b)}"
+    assert len(subjects) >= 15
+
+
+def test_c_subjects_shape(subjects):
+    c = [s for s in subjects if s.get("level") == "C"]
+    assert len(c) >= 2
+    for s in c:
+        assert s["name"].endswith("(Aspek Transaksi Internasional dan P3B)")
+        assert (s["bankSize"], s["totalQuestions"], s["essayCount"], s["durationMin"]) == (100, 40, 25, 90)
 
 
 def test_b_subject_names_present(subjects):
