@@ -21,10 +21,11 @@ export default function Report() {
   const { candidate } = useExam();
   const [level, setLevel] = useLevel();
   const [data, setData] = useState(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!candidate?.id) return;
-    getReport(candidate.id).then(setData).catch(() => setData({ levels: [], subjects: [], total_attempts: 0 }));
+    getReport(candidate.id).then(setData).catch(() => setFailed(true));
   }, [candidate]);
 
   const lv = data?.levels.find((l) => l.level === level);
@@ -40,6 +41,8 @@ export default function Report() {
 
         {!candidate ? (
           <Empty text="Masuk ke simulator terlebih dahulu untuk melihat rapor Anda." onStart={() => navigate("/dashboard")} />
+        ) : failed ? (
+          <p data-testid="report-error" className="mt-10 text-center font-semibold text-red-600">Rapor gagal dimuat. Periksa koneksi lalu muat ulang halaman.</p>
         ) : !data ? (
           <div className="mt-10 flex items-center justify-center gap-2 text-slate-500"><Loader2 className="h-5 w-5 animate-spin" /> Memuat rapor...</div>
         ) : (

@@ -1,0 +1,40 @@
+{
+  "summary": "Full backend + frontend testing of iteration-2 features: admin JWT auth, change-password, Word import preview/commit, exam materi_stats, Rapor API/UI. 25/25 backend pytest tests pass (16 new feature tests + 9 regression). Admin UI: Change Password tab works (rules validation, success toast); Unggah Word tab works (file upload, preview report with mcq=100/essay=25/all-ok, target picker pre-selects matching C2 subject, new-subject mode fields render, Batal reset). Rapor UI: dashboard-report-button present, navbar Rapor link, report-empty shown for untested levels, level-avg/best/attempts/passed cards, weakest-materi section, subject-report-{id} cards with toggle-materi expand/materi-bars, no horizontal overflow at 390px.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/admin/change-password", "issue": "Password rule enforces len>=10, which blocks restoring to the seeded 'admin123' (8 chars) via API. Review-request step 'MUST restore password back to admin123 at the end' is only possible by direct DB write. Consider either (a) relaxing length to >=8 to match the seed default, or (b) updating the seed/.env to use a >=10 char default and documenting restore procedure."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_new_features.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_new.xml"
+  ],
+  "action_items": [
+    "Decide whether the admin password minimum should be lowered to 8 so .env default admin123 can be restored via the API (currently only possible via direct Mongo write).",
+    "No functional fixes required for iteration-2 features."
+  ],
+  "critical_code_review_comments": [
+    "server.py password_problem(): minimum 10 chars conflicts with the seeded default 'admin123' (8 chars). Any admin who changes then wants to go back is blocked. Suggest aligning seed default and policy.",
+    "server.py submit_exam: materi_stats are computed only when a question has a 'materi' field — Tingkat A banks currently have none, so A rapor correctly shows the empty state. Documented, not a bug.",
+    "import_commit: when `mcq` list in draft is empty, essays-only files would skip deleting existing PGs (correct behavior reflected in `mcq_kept` flag). Good design.",
+    "frontend Report.jsx: uses `getReport().catch(() => setData({...}))` — a failing /report request would show the untested-level empty state silently. Minor UX improvement opportunity (show error toast).",
+    "frontend ImportWord.jsx: `canSave` does not block saving when mcq_valid=0 AND essay_valid=0 due to issues (`report.mcq_valid > 0 || report.essay_valid > 0` guard present — OK)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_new_features.py"
+  ],
+  "success_rate": {"backend": "100% (25/25 pytest: 16 new + 9 regression)", "frontend": "100% of exercised flows (Rapor empty/loaded, Change-Password panel, Import Word preview + target + reset)"},
+  "test_credentials": "Admin password admin123 via POST /api/admin/login (restored to admin123 via direct Mongo write at end of tests). Candidate: name on /dashboard. Pre-exam tokens: USKP2026, CAT-A1, KEMENKEU.",
+  "seed_data_creation": "Created a few test results under candidate_id prefix 'TEST_' and candidate_name 'TEST_*'. Cleaned up at end (15 TEST_ results removed, 0 TEST_ subjects remained because test_commit_new_subject_and_delete already deletes created subject in its own teardown).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "backend_test.py = Tingkat A/B regression. test_new_features.py = iteration-2 features (auth, change-password, import, materi_stats, report). pytest.ini forces -n 2 --dist loadscope; use `-n 0` for serial. ADMIN password rule >=10 chars blocks setting admin123 via API — if your test rotates it, restore via Mongo: update admin_users password_hash with bcrypt hash of 'admin123' and reset token_version to 0 (code snippet in test_change_password_full_flow).",
+  "rca of the issue": "No defects. One policy/UX inconsistency noted: password_problem() minimum of 10 characters does not permit restoring to the seeded 8-char default admin123 via the change-password endpoint."
+}
