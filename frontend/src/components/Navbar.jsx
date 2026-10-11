@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: "Beranda", to: "/" },
   { label: "Simulator", to: "/dashboard" },
   { label: "Mode Esai", to: "/esai" },
+  { label: "Rapor", to: "/rapor" },
 ];
 
 export default function Navbar() {

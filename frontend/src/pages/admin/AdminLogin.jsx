@@ -5,7 +5,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useToast } from "../../hooks/use-toast";
-import { adminLogin, setAdminToken } from "../../api";
+import { adminLogin, setAdminToken, apiErrorMessage } from "../../api";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export default function AdminLogin() {
       setAdminToken(token);
       navigate("/admin");
     } catch (err) {
-      toast({ title: "Login gagal", description: "Kata sandi admin salah.", variant: "destructive" });
+      toast({ title: "Login gagal", description: apiErrorMessage(err, "Kata sandi admin salah."), variant: "destructive" });
       setLoading(false);
     }
   };
@@ -41,9 +41,9 @@ export default function AdminLogin() {
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <Label className="text-sm font-semibold text-indigo-200">Kata Sandi Admin</Label>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Masukkan kata sandi" className="mt-1.5 h-11 border-indigo-700 bg-indigo-950 text-white placeholder:text-indigo-500" />
+            <Input data-testid="admin-password-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Masukkan kata sandi" className="mt-1.5 h-11 border-indigo-700 bg-indigo-950 text-white placeholder:text-indigo-500" />
           </div>
-          <Button type="submit" disabled={loading} className="h-11 w-full bg-amber-500 font-bold text-indigo-950 hover:bg-amber-400">
+          <Button data-testid="admin-login-submit" type="submit" disabled={loading} className="h-11 w-full bg-amber-500 font-bold text-indigo-950 hover:bg-amber-400">
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />} Masuk
           </Button>
         </form>

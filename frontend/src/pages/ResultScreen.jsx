@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useExam } from "../context/ExamContext";
+import MateriBars, { pctOf } from "../components/report/MateriBars";
 
 export default function ResultScreen() {
   const navigate = useNavigate();
@@ -98,6 +99,16 @@ export default function ResultScreen() {
             </Button>
           </div>
         </div>
+
+        {r.materi_stats?.length > 0 && (
+          <div data-testid="result-materi" className="mt-8 rounded-2xl border border-indigo-100 bg-white p-6">
+            <h2 className="text-lg font-extrabold text-indigo-950">Hasil per Materi</h2>
+            <p className="mt-1 text-sm text-slate-500">Diurutkan dari yang paling lemah. Lihat rapor untuk akumulasi semua percobaan.</p>
+            <div className="mt-5">
+              <MateriBars items={[...r.materi_stats].sort((a, b) => pctOf(a) - pctOf(b))} testid="result-materi-bars" />
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 flex gap-2 border-b border-indigo-100">
           {[{ k: "ringkasan", label: "Review Jawaban" }, { k: "pembahasan", label: "Pembahasan" }].map((t) => (

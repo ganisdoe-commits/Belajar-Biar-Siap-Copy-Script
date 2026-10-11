@@ -3,7 +3,7 @@ import os
 import uuid
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from parse_any import parse
+from parse_any import parse, to_qdocs, to_edocs
 
 load_dotenv()
 c = MongoClient(os.environ["MONGO_URL"])
@@ -16,38 +16,6 @@ JOBS = [
     ("/tmp/f_ppn.docx", "PPN"),
     ("/tmp/f_pbb.docx", "PBB"),
 ]
-
-
-def to_qdocs(sid, mcq):
-    out = []
-    for q in mcq:
-        pemb = (q.get("pembahasan") or "").strip()
-        dasar = (q.get("dasar") or "").strip()
-        if dasar:
-            pemb = (pemb + "\n\nDasar Hukum: " + dasar).strip()
-        out.append({
-            "id": str(uuid.uuid4()), "subject_id": sid, "number": q["number"],
-            "question": q["question"].strip(),
-            "options": [{"key": k, "text": q["options"][k].strip()} for k in ["A", "B", "C", "D"]],
-            "answer": q["answer"], "pembahasan": pemb,
-        })
-    return out
-
-
-def to_edocs(sid, essays):
-    out = []
-    for e in essays:
-        model = (e.get("model") or "").strip()
-        dasar = (e.get("dasar") or "").strip()
-        if dasar:
-            model = (model + "\n\nDasar Hukum: " + dasar).strip()
-        topic = (e.get("topic") or "").strip()
-        out.append({
-            "id": str(uuid.uuid4()), "subject_id": sid, "number": e["number"],
-            "question": (f"[{topic}] " if topic else "") + e["question"].strip(),
-            "model_answer": model,
-        })
-    return out
 
 
 if __name__ == "__main__":

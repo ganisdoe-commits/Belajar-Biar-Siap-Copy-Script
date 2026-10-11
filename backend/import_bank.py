@@ -6,8 +6,7 @@ import sys
 import uuid
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from parse_any import parse
-from import_all_a import to_qdocs, to_edocs
+from parse_any import parse, to_qdocs, to_edocs
 
 load_dotenv()
 db = MongoClient(os.environ["MONGO_URL"])[os.environ["DB_NAME"]]

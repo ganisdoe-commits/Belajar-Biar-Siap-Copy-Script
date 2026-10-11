@@ -14,7 +14,28 @@ const authHeader = () => {
   return t ? { Authorization: `Bearer ${t}` } : {};
 };
 
+api.interceptors.response.use(
+  (r) => r,
+  (err) => {
+    const url = err.config?.url || "";
+    if (err.response?.status === 401 && url.startsWith("/admin") && url !== "/admin/login") {
+      clearAdminToken();
+      window.location.href = "/admin/login";
+    }
+    return Promise.reject(err);
+  }
+);
+
+export function apiErrorMessage(err, fallback = "Terjadi kesalahan. Silakan coba lagi.") {
+  const detail = err?.response?.data?.detail;
+  if (!detail) return fallback;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) return detail.map((e) => e?.msg || JSON.stringify(e)).join(" ");
+  return detail.msg || fallback;
+}
+
 // ---- Public ----
+export const getReport = (cid) => api.get(`/report/${cid}`).then((r) => r.data);
 export const getSubjects = () => api.get("/subjects").then((r) => r.data);
 export const getSubject = (id) => api.get(`/subjects/${id}`).then((r) => r.data);
 export const getExam = (id) => api.get(`/subjects/${id}/exam`).then((r) => r.data);
@@ -39,5 +60,17 @@ export const adminUpdateEssay = (id, data) => api.put(`/admin/essays/${id}`, dat
 export const adminDeleteEssay = (id) => api.delete(`/admin/essays/${id}`, { headers: authHeader() }).then((r) => r.data);
 export const adminBulkEssays = (payload) => api.post("/admin/essays/bulk", payload, { headers: authHeader() }).then((r) => r.data);
 export const adminGetResults = () => api.get("/admin/results", { headers: authHeader() }).then((r) => r.data);
+export const adminChangePassword = (data) => api.post("/admin/change-password", data, { headers: authHeader() }).then((r) => r.data);
+export const adminImportPreview = (file, onProgress) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  return api
+    .post("/admin/import/preview", fd, {
+      headers: authHeader(),
+      onUploadProgress: (e) => onProgress && e.total && onProgress(Math.round((e.loaded / e.total) * 100)),
+    })
+    .then((r) => r.data);
+};
+export const adminImportCommit = (data) => api.post("/admin/import/commit", data, { headers: authHeader() }).then((r) => r.data);
 
 export default api;

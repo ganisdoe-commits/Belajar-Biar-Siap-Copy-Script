@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, FileText, ArrowRight, User, LogOut, History, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Clock, FileText, ArrowRight, User, LogOut, History, CheckCircle2, XCircle, Loader2, BarChart3 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -82,9 +82,14 @@ export default function Dashboard() {
               <div className="text-xs text-slate-500">ID: {candidate.id}</div>
             </div>
           </div>
-          <Button variant="outline" onClick={() => { logoutCandidate(); navigate("/"); }} className="border-indigo-200 font-semibold text-indigo-700 hover:bg-indigo-50">
-            <LogOut className="mr-1.5 h-4 w-4" /> Keluar
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button data-testid="dashboard-report-button" onClick={() => navigate("/rapor")} className="bg-indigo-700 font-semibold hover:bg-indigo-900">
+              <BarChart3 className="mr-1.5 h-4 w-4" /> Lihat Rapor
+            </Button>
+            <Button variant="outline" onClick={() => { logoutCandidate(); navigate("/"); }} className="border-indigo-200 font-semibold text-indigo-700 hover:bg-indigo-50">
+              <LogOut className="mr-1.5 h-4 w-4" /> Keluar
+            </Button>
+          </div>
         </div>
 
         <div className="mt-10">
