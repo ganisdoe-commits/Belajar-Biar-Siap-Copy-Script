@@ -52,7 +52,7 @@ export default function ResultScreen() {
           <h1 className="mt-4 text-2xl font-extrabold tracking-tight">
             {r.passed ? "Selamat, Anda Lulus!" : "Terus Berlatih, Hampir Sampai!"}
           </h1>
-          <p className="mt-1.5 text-sm text-white/80">{r.subject_name}</p>
+          <p className="mt-1.5 text-sm text-white/80">Tingkat {r.level || "A"} · {r.subject_name}</p>
         </div>
       </div>
 

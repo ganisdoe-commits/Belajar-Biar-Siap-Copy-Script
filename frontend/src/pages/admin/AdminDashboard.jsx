@@ -69,7 +69,7 @@ export default function AdminDashboard() {
                 <SelectTrigger className="w-[320px]"><SelectValue placeholder="Pilih mata ujian" /></SelectTrigger>
                 <SelectContent>
                   {subjects.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>{s.name} · {s.totalQuestions} PG / {s.essayCount} esai</SelectItem>
+                    <SelectItem key={s.id} value={s.id}>[Tk. {s.level || "A"}] {s.name} · {s.totalQuestions} PG / {s.essayCount} esai</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

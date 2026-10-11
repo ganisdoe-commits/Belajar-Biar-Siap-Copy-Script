@@ -34,7 +34,7 @@ export default function ResultsTable() {
               {rows.map((r) => (
                 <tr key={r.id}>
                   <td className="px-4 py-3"><div className="font-semibold text-slate-800">{r.candidate_name}</div><div className="text-xs text-slate-400">{r.candidate_id}</div></td>
-                  <td className="px-4 py-3 text-slate-700">{r.subject_name}</td>
+                  <td className="px-4 py-3 text-slate-700"><span className="mr-2 rounded-md bg-indigo-50 px-1.5 py-0.5 text-[11px] font-bold text-indigo-600">Tk. {r.level || "A"}</span>{r.subject_name}</td>
                   <td className="px-4 py-3 text-slate-500">{new Date(r.date).toLocaleString("id-ID")}</td>
                   <td className="px-4 py-3 text-center text-slate-700">{r.correct}/{r.total}</td>
                   <td className="px-4 py-3 text-center font-bold text-indigo-950">{r.score}</td>

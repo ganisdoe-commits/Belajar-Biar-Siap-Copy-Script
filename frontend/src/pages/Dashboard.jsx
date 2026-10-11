@@ -7,6 +7,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useExam } from "../context/ExamContext";
 import { getSubjects, getResults } from "../api";
+import { LevelTabs, LevelEmpty, useLevel } from "../components/LevelTabs";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ export default function Dashboard() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState([]);
+  const [level, setLevel] = useLevel();
+  const shown = subjects.filter((s) => (s.level || "A") === level);
 
   useEffect(() => {
     getSubjects()
@@ -86,18 +89,21 @@ export default function Dashboard() {
 
         <div className="mt-10">
           <h2 className="text-2xl font-extrabold tracking-tight text-indigo-950">Pilih Mata Ujian</h2>
-          <p className="mt-1.5 text-slate-600">Pilih mata ujian untuk mulai simulasi.</p>
+          <p className="mt-1.5 text-slate-600">Pilih tingkat, lalu pilih mata ujian untuk mulai simulasi. Tingkat tidak harus ditempuh berurutan.</p>
+          <div className="mt-5"><LevelTabs value={level} onChange={setLevel} subjects={subjects} /></div>
         </div>
 
         {loading ? (
           <div className="mt-10 flex items-center justify-center gap-2 text-slate-500"><Loader2 className="h-5 w-5 animate-spin" /> Memuat mata ujian...</div>
+        ) : shown.length === 0 ? (
+          <LevelEmpty level={level} />
         ) : (
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {subjects.map((s) => (
-              <div key={s.id} className="group flex flex-col rounded-2xl border border-indigo-100 bg-white p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-900/5">
+          <div data-testid="subject-grid" className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {shown.map((s) => (
+              <div key={s.id} data-testid={`subject-card-${s.id}`} className="group flex flex-col rounded-2xl border border-indigo-100 bg-white p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-900/5">
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold text-white" style={{ backgroundColor: s.color }}>{s.code}</span>
-                  <span className="text-xs font-semibold text-slate-400">{s.totalQuestions} soal</span>
+                  <span className="text-xs font-semibold text-slate-400">Tingkat {s.level || "A"} · {s.totalQuestions} soal</span>
                 </div>
                 <h3 className="mt-4 text-lg font-bold text-indigo-950">{s.name}</h3>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{s.desc}</p>
@@ -105,7 +111,7 @@ export default function Dashboard() {
                   <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {s.durationMin} menit</span>
                   <span className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> Pilihan ganda</span>
                 </div>
-                <Button onClick={() => navigate(`/pre-exam/${s.id}`)} disabled={!s.totalQuestions} className="mt-5 w-full bg-amber-500 font-bold text-indigo-950 hover:bg-amber-400 disabled:opacity-50">
+                <Button data-testid={`start-exam-${s.id}`} onClick={() => navigate(`/pre-exam/${s.id}`)} disabled={!s.totalQuestions} className="mt-5 w-full bg-amber-500 font-bold text-indigo-950 hover:bg-amber-400 disabled:opacity-50">
                   {s.totalQuestions ? "Mulai Ujian" : "Belum ada soal"} {!!s.totalQuestions && <ArrowRight className="ml-1.5 h-4 w-4" />}
                 </Button>
               </div>
@@ -133,7 +139,7 @@ export default function Dashboard() {
                 <tbody className="divide-y divide-indigo-50">
                   {history.map((h) => (
                     <tr key={h.id}>
-                      <td className="px-5 py-3 font-semibold text-slate-800">{h.subject_name}</td>
+                      <td className="px-5 py-3 font-semibold text-slate-800"><span className="mr-2 rounded-md bg-indigo-50 px-1.5 py-0.5 text-[11px] font-bold text-indigo-600">Tk. {h.level || "A"}</span>{h.subject_name}</td>
                       <td className="px-5 py-3 text-slate-500">{new Date(h.date).toLocaleDateString("id-ID")}</td>
                       <td className="px-5 py-3 text-center text-slate-700">{h.correct}/{h.total}</td>
                       <td className="px-5 py-3 text-center font-bold text-indigo-950">{h.score}</td>

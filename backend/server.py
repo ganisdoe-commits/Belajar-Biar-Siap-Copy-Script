@@ -267,6 +267,7 @@ async def submit_exam(payload: ExamSubmit):
         "candidate_id": payload.candidate.id,
         "subject_id": payload.subject_id,
         "subject_name": s["name"],
+        "level": s.get("level", "A"),
         "total": total,
         "correct": correct,
         "wrong": answered - correct,

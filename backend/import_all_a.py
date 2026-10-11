@@ -50,33 +50,34 @@ def to_edocs(sid, essays):
     return out
 
 
-for path, kw in JOBS:
-    subj = db.subjects.find_one({"name": {"$regex": kw, "$options": "i"}})
-    if not subj:
-        print("TIDAK ditemukan subject untuk", kw)
-        continue
-    sid = subj["id"]
-    mcq, essays = parse(path)
-    db.subjects.update_one({"id": sid}, {"$set": {"examCount": 40}})
-    db.questions.delete_many({"subject_id": sid})
-    db.essays.delete_many({"subject_id": sid})
-    qd, ed = to_qdocs(sid, mcq), to_edocs(sid, essays)
-    if qd:
-        db.questions.insert_many(qd)
-    if ed:
-        db.essays.insert_many(ed)
-    print(f"{subj['name']:30s} -> PG {len(qd)}, esai {len(ed)}")
+if __name__ == "__main__":
+    for path, kw in JOBS:
+        subj = db.subjects.find_one({"name": {"$regex": kw, "$options": "i"}})
+        if not subj:
+            print("TIDAK ditemukan subject untuk", kw)
+            continue
+        sid = subj["id"]
+        mcq, essays = parse(path)
+        db.subjects.update_one({"id": sid}, {"$set": {"examCount": 40}})
+        db.questions.delete_many({"subject_id": sid})
+        db.essays.delete_many({"subject_id": sid})
+        qd, ed = to_qdocs(sid, mcq), to_edocs(sid, essays)
+        if qd:
+            db.questions.insert_many(qd)
+        if ed:
+            db.essays.insert_many(ed)
+        print(f"{subj['name']:30s} -> PG {len(qd)}, esai {len(ed)}")
 
-# Hapus Kode Etik Profesi dari Tingkat A (tidak termasuk; belum ada bank soal)
-ke = db.subjects.find_one({"name": {"$regex": "Kode Etik", "$options": "i"}})
-if ke:
-    db.questions.delete_many({"subject_id": ke["id"]})
-    db.essays.delete_many({"subject_id": ke["id"]})
-    db.subjects.delete_one({"id": ke["id"]})
-    print("Dihapus:", ke["name"])
+    # Hapus Kode Etik Profesi dari Tingkat A (tidak termasuk; belum ada bank soal)
+    ke = db.subjects.find_one({"name": {"$regex": "Kode Etik", "$options": "i"}})
+    if ke:
+        db.questions.delete_many({"subject_id": ke["id"]})
+        db.essays.delete_many({"subject_id": ke["id"]})
+        db.subjects.delete_one({"id": ke["id"]})
+        print("Dihapus:", ke["name"])
 
-print("\n--- Daftar mata ujian sekarang ---")
-for s in db.subjects.find().sort("order", 1):
-    bank = db.questions.count_documents({"subject_id": s["id"]})
-    es = db.essays.count_documents({"subject_id": s["id"]})
-    print(f"  {s['name']:32s} | bank PG {bank:3d} | esai {es}")
+    print("\n--- Daftar mata ujian sekarang ---")
+    for s in db.subjects.find().sort("order", 1):
+        bank = db.questions.count_documents({"subject_id": s["id"]})
+        es = db.essays.count_documents({"subject_id": s["id"]})
+        print(f"  {s['name']:32s} | bank PG {bank:3d} | esai {es}")

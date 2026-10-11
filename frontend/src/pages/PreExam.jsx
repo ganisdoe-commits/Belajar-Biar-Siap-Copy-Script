@@ -92,6 +92,9 @@ export default function PreExam() {
           <span className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold text-white" style={{ backgroundColor: subject.color }}>
             {subject.code}
           </span>
+          <span data-testid="pre-exam-level" className="ml-2 inline-flex items-center rounded-lg bg-amber-400 px-2.5 py-1 text-xs font-bold text-indigo-950">
+            Tingkat {subject.level || "A"}
+          </span>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white">{subject.name}</h1>
           <p className="mt-2 text-indigo-300">{subject.desc}</p>
 
