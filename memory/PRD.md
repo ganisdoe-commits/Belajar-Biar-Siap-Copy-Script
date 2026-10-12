@@ -29,7 +29,7 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 - P0: User ganti password admin lewat menu 'Ganti Password' sebelum production
 - P0: Sisa Tingkat C (8 mata ujian lagi) — user akan upload bertahap
 - DONE 2026-06: 5 peraturan diunggah & dipetakan (SDSN→15 mata ujian; UU PPSP→KUP A/B/C; PP 58/2023→Pot/Put A/B + PPh OP A/B/C; PER-11/PJ/2025→Pot/Put A/B + PPN A/B; SPT Tahunan OP 2025→PPh OP A/B/C)
-- P0: User menyusulkan UU Pengadilan Pajak (UU 14/2002), formulir SPT PPh Badan & SPT Masa PPN (tab Peraturan di /admin)
+- DONE 2026-06: UU 14/2002 Pengadilan Pajak→KUP A/B/C; potongan PER-11 huruf D–E (hal. 267–466, 200 hlm) 'SPT Masa PPN & Faktur Pajak'→PPN A/B; Formulir SPT Tahunan PPh Badan (xlsx, 35 sheet)→PPh Badan B + Akuntansi Perpajakan B. Total 8 dokumen aktif
 - P1: User unggah ulang 5 file Tingkat A via 'Unggah Word' agar rapor per materi Tingkat A aktif
 - P1: Login peserta + akses berbayar (voucher manual atau Midtrans/Xendit)
 - P1: Deployment production + subdomain (mis. belajar.potput.id), link dari Blogger/Sitepad
