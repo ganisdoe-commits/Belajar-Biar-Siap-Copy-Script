@@ -96,3 +96,4 @@ export async function adminUploadRegulation(file, title, subjectIds, onProgress)
   }
   return api.post("/admin/regulations/upload/complete", { upload_id: init.upload_id, title, subject_ids: subjectIds }, { headers: authHeader() }).then((r) => r.data);
 }
+export const adminGetPrototypeDoc = () => api.get("/admin/docs/prototype", { headers: authHeader() }).then((r) => r.data);

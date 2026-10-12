@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Brain, ListChecks, PenLine, BarChart3, Loader2, Home, UploadCloud, KeyRound, Scale } from "lucide-react";
+import { LogOut, Brain, ListChecks, PenLine, BarChart3, Loader2, Home, UploadCloud, KeyRound, Scale, BookText } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../components/ui/select";
@@ -11,6 +11,7 @@ import ResultsTable from "../../components/admin/ResultsTable";
 import ImportWord from "../../components/admin/ImportWord";
 import ChangePassword from "../../components/admin/ChangePassword";
 import RegulationManager from "../../components/admin/RegulationManager";
+import DocsViewer from "../../components/admin/DocsViewer";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ export default function AdminDashboard() {
               <TabsTrigger data-testid="admin-tab-peraturan" value="peraturan"><Scale className="mr-1.5 h-4 w-4" /> Peraturan</TabsTrigger>
               <TabsTrigger data-testid="admin-tab-hasil" value="hasil"><BarChart3 className="mr-1.5 h-4 w-4" /> Hasil</TabsTrigger>
               <TabsTrigger data-testid="admin-tab-keamanan" value="keamanan"><KeyRound className="mr-1.5 h-4 w-4" /> Ganti Password</TabsTrigger>
+              <TabsTrigger data-testid="admin-tab-dokumentasi" value="dokumentasi"><BookText className="mr-1.5 h-4 w-4" /> Dokumentasi</TabsTrigger>
             </TabsList>
 
             {(tab === "pg" || tab === "esai") && <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -99,6 +101,9 @@ export default function AdminDashboard() {
             </TabsContent>
             <TabsContent value="keamanan">
               <ChangePassword />
+            </TabsContent>
+            <TabsContent value="dokumentasi">
+              <DocsViewer />
             </TabsContent>
           </Tabs>
         )}

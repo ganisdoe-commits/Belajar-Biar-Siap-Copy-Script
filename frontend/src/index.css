@@ -108,3 +108,31 @@ code {
 .xlsx-view table { border-collapse: collapse; font-size: 13px; }
 .xlsx-view td, .xlsx-view th { border: 1px solid #cbd5e1; padding: 3px 8px; white-space: nowrap; color: #1f2937; }
 .xlsx-view tr:first-child td { background: #f8fafc; }
+
+/* Dokumentasi markdown (Panel Admin) */
+.md-doc { color: #1f2937; line-height: 1.7; font-size: 15px; max-width: 980px; }
+.md-doc h1 { font-family: "Sora", sans-serif; font-size: 1.75rem; font-weight: 800; color: #1e1b4b; margin: 2rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid #F59E0B; }
+.md-doc h1:first-child { margin-top: 0; }
+.md-doc h2 { font-family: "Sora", sans-serif; font-size: 1.25rem; font-weight: 800; color: #312E81; margin: 1.75rem 0 .75rem; }
+.md-doc h3 { font-size: 1.05rem; font-weight: 700; color: #312E81; margin: 1.25rem 0 .5rem; }
+.md-doc p { margin: .6rem 0; }
+.md-doc ul, .md-doc ol { margin: .5rem 0 .75rem 1.4rem; }
+.md-doc ul { list-style: disc; }
+.md-doc ol { list-style: decimal; }
+.md-doc li { margin: .2rem 0; }
+.md-doc li input[type="checkbox"] { margin-right: .4rem; accent-color: #4338CA; }
+.md-doc table { width: 100%; border-collapse: collapse; margin: .75rem 0 1.25rem; font-size: 14px; display: block; overflow-x: auto; }
+.md-doc th { background: #EEF2FF; color: #312E81; font-weight: 700; text-align: left; }
+.md-doc th, .md-doc td { border: 1px solid #E0E7FF; padding: .45rem .7rem; vertical-align: top; }
+.md-doc tr:nth-child(even) td { background: #FFFEFB; }
+.md-doc code { background: #FFF3D6; color: #9a3412; padding: .1rem .35rem; border-radius: 4px; font-size: .9em; }
+.md-doc pre { background: #1e1b4b; color: #e0e7ff; padding: 1rem; border-radius: 10px; overflow-x: auto; margin: .75rem 0; }
+.md-doc pre code { background: transparent; color: inherit; padding: 0; }
+.md-doc blockquote { border-left: 4px solid #F59E0B; background: #FFF3D6; padding: .6rem 1rem; border-radius: 0 8px 8px 0; margin: .75rem 0; color: #374151; }
+.md-doc hr { border: 0; border-top: 1px dashed #c7d2fe; margin: 2rem 0; }
+.md-doc strong { color: #1e1b4b; }
+@media print {
+  body * { visibility: hidden; }
+  .md-doc, .md-doc * { visibility: visible; }
+  .md-doc { position: absolute; left: 0; top: 0; max-width: none; }
+}

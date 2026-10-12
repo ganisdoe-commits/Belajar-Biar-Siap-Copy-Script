@@ -543,6 +543,13 @@ async def admin_me(_: bool = Depends(require_admin)):
     return {"username": "admin", "password_changed_at": admin.get("password_changed_at")}
 
 
+@api_router.get("/admin/docs/prototype")
+async def admin_prototype_doc(_: bool = Depends(require_admin)):
+    path = ROOT_DIR / "docs" / "PROTOTYPE.md"
+    return {"filename": "PROTOTYPE.md", "content": path.read_text(encoding="utf-8"),
+            "updated_at": datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()}
+
+
 # ---------------------------- Import Word ----------------------------
 LEVEL_BASE_ORDER = {"A": 1, "B": 11, "C": 21}
 
