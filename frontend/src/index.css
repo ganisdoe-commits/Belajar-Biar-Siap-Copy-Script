@@ -103,3 +103,8 @@ code {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cdc9ec; border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: #b4aee3; }
+
+/* Tampilan file Excel di Ekstra Konten */
+.xlsx-view table { border-collapse: collapse; font-size: 13px; }
+.xlsx-view td, .xlsx-view th { border: 1px solid #cbd5e1; padding: 3px 8px; white-space: nowrap; color: #1f2937; }
+.xlsx-view tr:first-child td { background: #f8fafc; }

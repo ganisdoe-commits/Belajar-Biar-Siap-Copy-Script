@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Brain, ListChecks, PenLine, BarChart3, Loader2, Home, UploadCloud, KeyRound } from "lucide-react";
+import { LogOut, Brain, ListChecks, PenLine, BarChart3, Loader2, Home, UploadCloud, KeyRound, Scale } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../components/ui/select";
@@ -10,6 +10,7 @@ import EssayManager from "../../components/admin/EssayManager";
 import ResultsTable from "../../components/admin/ResultsTable";
 import ImportWord from "../../components/admin/ImportWord";
 import ChangePassword from "../../components/admin/ChangePassword";
+import RegulationManager from "../../components/admin/RegulationManager";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ export default function AdminDashboard() {
               <TabsTrigger data-testid="admin-tab-pg" value="pg"><ListChecks className="mr-1.5 h-4 w-4" /> Soal PG</TabsTrigger>
               <TabsTrigger data-testid="admin-tab-esai" value="esai"><PenLine className="mr-1.5 h-4 w-4" /> Esai</TabsTrigger>
               <TabsTrigger data-testid="admin-tab-import" value="import"><UploadCloud className="mr-1.5 h-4 w-4" /> Unggah Word</TabsTrigger>
+              <TabsTrigger data-testid="admin-tab-peraturan" value="peraturan"><Scale className="mr-1.5 h-4 w-4" /> Peraturan</TabsTrigger>
               <TabsTrigger data-testid="admin-tab-hasil" value="hasil"><BarChart3 className="mr-1.5 h-4 w-4" /> Hasil</TabsTrigger>
               <TabsTrigger data-testid="admin-tab-keamanan" value="keamanan"><KeyRound className="mr-1.5 h-4 w-4" /> Ganti Password</TabsTrigger>
             </TabsList>
@@ -88,6 +90,9 @@ export default function AdminDashboard() {
             </TabsContent>
             <TabsContent value="import">
               <ImportWord subjects={subjects} onImported={(sid) => { loadSubjects(); setSubjectId(sid); }} />
+            </TabsContent>
+            <TabsContent value="peraturan">
+              <RegulationManager subjects={subjects} />
             </TabsContent>
             <TabsContent value="hasil">
               <ResultsTable />

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CheckCircle2, XCircle, MinusCircle, RotateCcw, LayoutDashboard, Trophy, BookOpen, Loader2,
+  CheckCircle2, XCircle, MinusCircle, RotateCcw, LayoutDashboard, Trophy, BookOpen,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useExam } from "../context/ExamContext";
@@ -9,9 +9,8 @@ import MateriBars, { pctOf } from "../components/report/MateriBars";
 
 export default function ResultScreen() {
   const navigate = useNavigate();
-  const { session, startSession, clearSession } = useExam();
+  const { session } = useExam();
   const [tab, setTab] = useState("ringkasan");
-  const [retaking, setRetaking] = useState(false);
 
   if (!session || !session.submitted || !session.result) {
     return (
@@ -28,17 +27,8 @@ export default function ResultScreen() {
   const review = session.review || [];
   const subject = session.subject;
 
-  const retake = async () => {
-    try {
-      setRetaking(true);
-      const subj = subject;
-      clearSession();
-      await startSession(subj);
-      navigate(`/exam/${subj.id}`);
-    } catch (e) {
-      setRetaking(false);
-    }
-  };
+  const retake = () => navigate(`/pre-exam/${subject.id}`);
+
 
   const circ = 2 * Math.PI * 54;
   const dash = (r.score / 100) * circ;
@@ -91,8 +81,8 @@ export default function ResultScreen() {
           </div>
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button onClick={retake} disabled={retaking} className="bg-amber-500 font-bold text-indigo-950 hover:bg-amber-400">
-              {retaking ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <RotateCcw className="mr-1.5 h-4 w-4" />} Ulangi Latihan
+            <Button data-testid="retake-button" onClick={retake} className="bg-amber-500 font-bold text-indigo-950 hover:bg-amber-400">
+              <RotateCcw className="mr-1.5 h-4 w-4" /> Ulangi Latihan
             </Button>
             <Button onClick={() => navigate("/dashboard")} variant="outline" className="border-indigo-200 font-semibold text-indigo-700">
               <LayoutDashboard className="mr-1.5 h-4 w-4" /> Kembali ke Dashboard

@@ -42,10 +42,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-bold text-white">Catatan</h4>
-            <p className="mt-4 text-sm leading-relaxed text-indigo-300">
-              Soal yang ditampilkan saat ini adalah <span className="text-amber-300">data contoh (mock)</span> untuk
-              keperluan demo simulator. Akan diganti dengan bank soal asli Anda.
+            <h4 className="text-sm font-bold text-white">Penafian</h4>
+            <p data-testid="footer-disclaimer" className="mt-4 text-sm leading-relaxed text-indigo-300">
+              Belajar Biar Pintar adalah aplikasi simulasi latihan mandiri dan tidak berafiliasi dengan
+              Kementerian Keuangan maupun penyelenggara ujian resmi. Hasil simulasi bukan jaminan kelulusan.
+              Selalu ikuti panduan resmi terbaru dari penyelenggara.
             </p>
           </div>
         </div>

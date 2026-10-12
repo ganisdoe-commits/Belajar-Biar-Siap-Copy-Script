@@ -1,25 +1,33 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowRight, CheckCircle2, Timer, Calculator, StickyNote,
-  Flag, ListChecks, BarChart3, RotateCcw, ShieldCheck, Monitor, Sparkles, Layers,
+  ArrowRight, CheckCircle2, Timer, StickyNote, Sheet, Scale, CloudCheck, Target,
+  Flag, ListChecks, BarChart3, RotateCcw, ShieldCheck, Monitor, Sparkles, Layers, MonitorCheck, FileSearch,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Button } from "../components/ui/button";
-import { SUBJECTS, LANDING_STATS, PASS_RATES, TESTIMONIALS, LEVELS } from "../mock";
+import { SUBJECTS, LEVELS } from "../mock";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1507206130118-b5907f817163?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBzdHVkeWluZyUyMGxhcHRvcHxlbnwwfHx8fDE3OTExNzIzMjh8MA&ixlib=rb-4.1.0&q=85";
 const CAT_IMG = "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHwyfHxvbmxpbmUlMjBleGFtJTIwY29tcHV0ZXJ8ZW58MHx8fHwxNzkxMTcyMzI4fDA&ixlib=rb-4.1.0&q=85";
 const CTA_IMG = "https://images.unsplash.com/photo-1589386417686-0d34b5903d23?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHwxfHxjb25maWRlbnQlMjBidXNpbmVzcyUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3OTExNzIzMjh8MA&ixlib=rb-4.1.0&q=85";
 
 const FEATURES = [
+  { icon: Scale, title: "Ekstra Konten Peraturan", desc: "Buka UU, peraturan, dan formulir SPT langsung dari layar ujian, lalu kembali ke soal." },
+  { icon: Sheet, title: "Lembar Kerja & Kalkulator", desc: "Lembar kerja ala Excel untuk perhitungan, ditambah kalkulator dan Note." },
   { icon: Timer, title: "Timer Mata Ujian", desc: "Hitung mundur sesuai durasi tiap mata ujian, melatih pengaturan waktu." },
-  { icon: Flag, title: "Tandai Soal Ragu", desc: "Beri penanda pada soal yang masih ragu untuk ditinjau kembali." },
-  { icon: ListChecks, title: "Navigasi Soal", desc: "Status terjawab, belum terjawab, dan ditandai dalam satu panel." },
-  { icon: Calculator, title: "Kalkulator Bawaan", desc: "Kalkulator di dalam sistem untuk membantu perhitungan pajak." },
-  { icon: StickyNote, title: "Catatan (Note)", desc: "Fitur catatan untuk coretan selama mengerjakan soal." },
-  { icon: BarChart3, title: "Penilaian Otomatis", desc: "Skor langsung dengan bobot 2,5 per jawaban benar, nilai maksimal 100." },
+  { icon: Flag, title: "Tandai Soal Ragu", desc: "Tandai soal yang masih ragu untuk ditinjau kembali sebelum dikirim." },
+  { icon: ListChecks, title: "Navigasi & Statistik", desc: "Status terjawab, belum terjawab, dan ditandai dalam satu panel." },
+  { icon: CloudCheck, title: "Simpan Otomatis", desc: "Jawaban tersimpan tiap menit; ujian bisa dilanjutkan setelah halaman tertutup." },
+  { icon: BarChart3, title: "Penilaian Otomatis", desc: "Bobot 2,5 per jawaban benar tanpa pengurangan, nilai maksimal 100." },
+  { icon: Target, title: "Rapor per Materi", desc: "Lihat persentase benar per bab untuk mengetahui bagian yang perlu diperkuat." },
+];
+
+const HOOKS = [
+  { icon: MonitorCheck, text: "Alur & layar seperti ujian asli" },
+  { icon: FileSearch, text: "Soal studi kasus terbaru" },
+  { icon: Target, text: "Rapor per materi menunjukkan titik lemah" },
 ];
 
 export default function LandingPage() {
@@ -45,9 +53,22 @@ export default function LandingPage() {
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
               Aplikasi pembelajaran untuk menghadapi Ujian Kompetensi Pajak
-              Tingkat A, B, dan C. Berlatih dalam suasana ujian yang mendekati
-              aslinya — lengkap dengan timer, navigasi soal, kalkulator, dan penilaian otomatis.
+              Tingkat A, B, dan C. Berlatih dengan alur dan tampilan yang menyerupai ujian berbasis CAT —
+              lengkap dengan ekstra konten peraturan, lembar kerja, timer, dan penilaian otomatis.
             </p>
+            <div data-testid="landing-hook" className="mt-7 max-w-xl rounded-2xl border-l-4 border-amber-400 bg-white/80 p-5 shadow-sm">
+              <p className="text-lg font-extrabold leading-snug text-indigo-950 sm:text-xl">
+                “Jangan biarkan hari ujian menjadi pertama kalinya Anda melihat layar CAT.”
+              </p>
+              <ul className="mt-4 space-y-2">
+                {HOOKS.map((h) => (
+                  <li key={h.text} className="flex items-center gap-2.5 text-sm font-semibold text-slate-700">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-700 text-white"><h.icon className="h-4 w-4" /></span>
+                    {h.text}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button
                 size="lg"
@@ -64,14 +85,6 @@ export default function LandingPage() {
               >
                 Coba Mode Esai
               </Button>
-            </div>
-            <div className="mt-10 grid max-w-md grid-cols-3 gap-4">
-              {LANDING_STATS.map((s) => (
-                <div key={s.label}>
-                  <div className="text-2xl font-extrabold text-indigo-900">{s.value}</div>
-                  <div className="mt-0.5 text-xs font-medium text-slate-500">{s.label}</div>
-                </div>
-              ))}
             </div>
           </div>
 
@@ -185,7 +198,7 @@ export default function LandingPage() {
               Aplikasi ini membiasakan Anda dengan semua fiturnya sejak awal.
             </p>
           </div>
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
@@ -216,7 +229,7 @@ export default function LandingPage() {
               sepanjang sesi ujian.
             </p>
             <ul className="mt-7 space-y-3">
-              {["Masuk & pilih mata ujian", "Masukkan token untuk memulai", "Kerjakan soal pilihan ganda", "Kirim, kunci, lalu lihat hasil"].map((t) => (
+              {["Detail ujian & Pakta Integritas", "Masukkan token, baca Panduan Ujian", "Kerjakan 40 soal dengan Ekstra Konten peraturan", "Kirim & Selesai, lalu lihat nilai & pembahasan"].map((t) => (
                 <li key={t} className="flex items-center gap-3 text-indigo-100">
                   <CheckCircle2 className="h-5 w-5 shrink-0 text-amber-400" /> {t}
                 </li>
@@ -237,47 +250,6 @@ export default function LandingPage() {
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-300"><ShieldCheck className="h-4 w-4" /> Terkunci</div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* PASS RATE INFOGRAPHIC */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold uppercase tracking-wider text-indigo-700">Infografis kelulusan</span>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl">
-            Belajar lebih terarah dengan data
-          </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            Kenali mata ujian yang perlu dipersiapkan lebih matang berdasarkan
-            gambaran tingkat kelulusan (data contoh).
-          </p>
-        </div>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {PASS_RATES.map((p) => (
-            <div key={p.subject} className="rounded-2xl border border-indigo-100 bg-white p-6">
-              <h3 className="text-base font-bold text-indigo-950">{p.subject}</h3>
-              <div className="mt-5 space-y-4">
-                <div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-emerald-700">Lulus</span>
-                    <span className="font-bold text-indigo-950">{p.lulus}%</span>
-                  </div>
-                  <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-emerald-600" style={{ width: `${p.lulus}%` }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-amber-600">Mengulang</span>
-                    <span className="font-bold text-indigo-950">{p.ulang}%</span>
-                  </div>
-                  <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-amber-500" style={{ width: `${p.ulang}%` }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -306,30 +278,6 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl">
-            Kata mereka yang sudah berlatih
-          </h2>
-        </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <figure key={i} className="rounded-2xl border border-indigo-100 bg-white p-7">
-              <div className="flex gap-0.5 text-amber-400">
-                {[...Array(5)].map((_, j) => (
-                  <svg key={j} className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                  </svg>
-                ))}
-              </div>
-              <blockquote className="mt-4 text-sm leading-relaxed text-slate-700">"{t.text}"</blockquote>
-              <figcaption className="mt-4 text-xs font-semibold text-slate-500">— {t.author}</figcaption>
-            </figure>
-          ))}
         </div>
       </section>
 

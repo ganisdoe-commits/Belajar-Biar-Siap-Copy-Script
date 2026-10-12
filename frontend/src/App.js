@@ -10,6 +10,7 @@ import ResultScreen from "./pages/ResultScreen";
 import EssaySelect from "./pages/EssaySelect";
 import EssayScreen from "./pages/EssayScreen";
 import Report from "./pages/Report";
+import ExamFinished from "./pages/ExamFinished";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
@@ -24,6 +25,7 @@ function App() {
             <Route path="/pre-exam/:subjectId" element={<PreExam />} />
             <Route path="/exam/:subjectId" element={<ExamScreen />} />
             <Route path="/result" element={<ResultScreen />} />
+            <Route path="/selesai" element={<ExamFinished />} />
             <Route path="/esai" element={<EssaySelect />} />
             <Route path="/esai/:subjectId" element={<EssayScreen />} />
             <Route path="/rapor" element={<Report />} />

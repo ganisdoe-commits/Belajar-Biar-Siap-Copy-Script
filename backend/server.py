@@ -21,6 +21,8 @@ import bcrypt  # noqa: E402
 import jwt  # noqa: E402
 
 import seed_data  # noqa: E402
+import regulations  # noqa: E402
+from storage import init_storage  # noqa: E402
 from parse_any import analyze, to_qdocs, to_edocs  # noqa: E402
 
 mongo_url = os.environ['MONGO_URL']
@@ -99,6 +101,17 @@ class ExamSubmit(BaseModel):
     candidate: Candidate
     answers: Dict[str, str] = {}  # {question_id: selected_key}
     question_ids: List[str] = []  # urutan soal yang disajikan pada sesi ini
+    session_id: Optional[str] = None
+
+
+class ExamStart(BaseModel):
+    subject_id: str
+    candidate: Candidate
+
+
+class ExamSave(BaseModel):
+    answers: Dict[str, str] = {}
+    flags: Dict[str, bool] = {}
 
 
 class LoginIn(BaseModel):
@@ -229,8 +242,17 @@ async def on_startup():
         await db.admin_users.create_index("username", unique=True)
         await db.login_attempts.create_index("identifier", unique=True)
         await db.import_drafts.create_index("created_at", expireAfterSeconds=86400)
+        await db.upload_sessions.create_index("created_at", expireAfterSeconds=86400)
+        await db.upload_chunks.create_index("created_at", expireAfterSeconds=86400)
+        await db.upload_chunks.create_index([("upload_id", 1), ("index", 1)])
+        await db.exam_sessions.create_index("id", unique=True)
     except Exception as e:
         logger.error(f"Gagal seeding: {e}")
+    try:
+        await asyncio.to_thread(init_storage)
+        logger.info("Object storage siap")
+    except Exception as e:
+        logger.error(f"Object storage gagal diinisialisasi: {e}")
 
 
 # ---------------------------- Public routes ----------------------------
@@ -267,8 +289,7 @@ async def get_subject(sid: str):
     return await _attach_public_counts(clean(s))
 
 
-@api_router.get("/subjects/{sid}/exam")
-async def get_exam(sid: str):
+async def build_exam(sid: str) -> dict:
     s = await db.subjects.find_one({"id": sid})
     if not s:
         raise HTTPException(404, "Mata ujian tidak ditemukan")
@@ -299,12 +320,60 @@ async def get_exam(sid: str):
     }
 
 
+@api_router.get("/subjects/{sid}/exam")
+async def get_exam(sid: str):
+    return await build_exam(sid)
+
+
+@api_router.get("/client-info")
+async def client_info(request: Request):
+    return {"ip": client_ip(request)}
+
+
+@api_router.post("/exam/start")
+async def start_exam(payload: ExamStart):
+    data = await build_exam(payload.subject_id)
+    now = datetime.now(timezone.utc)
+    sess = {
+        "id": str(uuid.uuid4()), "subject_id": payload.subject_id, "candidate": payload.candidate.dict(),
+        "question_ids": [q["id"] for q in data["questions"]], "answers": {}, "flags": {},
+        "status": "in_progress", "started_at": now.isoformat(),
+        "deadline": (now + timedelta(seconds=data["duration_sec"])).isoformat(), "saved_at": None,
+    }
+    await db.exam_sessions.insert_one(dict(sess))
+    return {**data, "session_id": sess["id"], "started_at": sess["started_at"],
+            "deadline": sess["deadline"], "server_time": now.isoformat()}
+
+
+@api_router.post("/exam/session/{session_id}/save")
+async def save_exam(session_id: str, payload: ExamSave):
+    sess = await db.exam_sessions.find_one({"id": session_id})
+    if not sess:
+        raise HTTPException(404, "Sesi ujian tidak ditemukan")
+    if sess["status"] != "in_progress":
+        raise HTTPException(409, "Jawaban sudah terkirim dan terkunci")
+    valid = set(sess["question_ids"])
+    answers = {k: v for k, v in payload.answers.items() if k in valid and v in ("A", "B", "C", "D")}
+    flags = {k: True for k, v in payload.flags.items() if k in valid and v}
+    saved_at = datetime.now(timezone.utc).isoformat()
+    await db.exam_sessions.update_one({"id": session_id}, {"$set": {"answers": answers, "flags": flags, "saved_at": saved_at}})
+    return {"ok": True, "saved_at": saved_at, "answered": len(answers)}
+
+
 @api_router.post("/exam/submit")
 async def submit_exam(payload: ExamSubmit):
     s = await db.subjects.find_one({"id": payload.subject_id})
     if not s:
         raise HTTPException(404, "Mata ujian tidak ditemukan")
     s = clean(s)
+    sess = None
+    if payload.session_id:
+        sess = await db.exam_sessions.find_one({"id": payload.session_id})
+        if not sess or sess["subject_id"] != payload.subject_id:
+            raise HTTPException(404, "Sesi ujian tidak ditemukan")
+        if sess["status"] != "in_progress":
+            raise HTTPException(409, "Jawaban sudah terkirim dan terkunci")
+        payload.question_ids = sess["question_ids"]
     if payload.question_ids:
         found = await db.questions.find(
             {"subject_id": payload.subject_id, "id": {"$in": payload.question_ids}}
@@ -360,6 +429,9 @@ async def submit_exam(payload: ExamSubmit):
     }
     await db.results.insert_one(dict(result))
     result.pop("_id", None)
+    if sess:
+        await db.exam_sessions.update_one({"id": sess["id"]}, {"$set": {
+            "status": "submitted", "answers": payload.answers, "submitted_at": result["date"], "result_id": result["id"]}})
     return {"result": result, "review": review}
 
 
@@ -689,6 +761,7 @@ async def admin_results(_: bool = Depends(require_admin)):
     return [clean(r) for r in rs]
 
 
+app.include_router(regulations.build_router(db, require_admin), prefix="/api")
 app.include_router(api_router)
 
 app.add_middleware(

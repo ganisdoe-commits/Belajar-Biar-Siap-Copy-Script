@@ -5,8 +5,6 @@
 // ============================================================
 
 // Token contoh yang dibagikan "pengawas" pada layar pra-ujian
-export const EXAM_TOKENS = ["USKP2026", "CAT-A1", "KEMENKEU"];
-
 // Enam mata ujian USKP Tingkat A (sesuai panduan)
 export const SUBJECTS = [
   {
@@ -473,47 +471,24 @@ export const ESSAY_BANK = {
 };
 
 // Instruksi/aturan pada layar pra-ujian (meniru suasana CAT + SEB)
-export const PRE_EXAM_RULES = [
-  "Ujian dilaksanakan secara online berbasis CAT dan diakses melalui Safe Exam Browser (SEB).",
-  "Pastikan hanya aplikasi ujian yang berjalan. Tutup Chrome, Teams, TeamViewer, dan aplikasi sejenis.",
-  "Dilarang mencari jawaban di internet, menggunakan buku/catatan, atau kalkulator fisik.",
-  "Gunakan fitur Kalkulator dan Catatan yang tersedia di dalam sistem.",
-  "Setiap mata ujian terdiri dari 40 soal pilihan ganda. Benar = 2,5 poin, salah/kosong = 0.",
-  "Anda dapat berpindah antarsoal dan menandai soal yang ragu-ragu.",
-  "Jawaban akan terkunci setelah menekan tombol 'Kirim & Selesai'.",
-  "Masukkan token yang dibagikan pengawas untuk memulai ujian.",
+export const INTEGRITY_PACT = [
+  "Mengerjakan soal secara jujur, mandiri, dan tidak bekerja sama dengan pihak lain.",
+  "Tidak mencari jawaban di internet maupun bertanya kepada orang lain selama ujian.",
+  "Tidak mengambil gambar, menyalin, merekam, atau menyebarluaskan soal dan jawaban dalam bentuk apa pun.",
+  "Menjaga kerahasiaan soal serta bersikap objektif dan bertanggung jawab atas hasil yang diperoleh.",
 ];
 
-// Statistik untuk landing page
-export const LANDING_STATS = [
-  { value: "250+", label: "Soal Ujian Pajak" },
-  { value: "30.000+", label: "Sesi latihan berlangsung" },
-  { value: "1.000+", label: "Pengguna aktif" },
+export const EXAM_PROHIBITIONS = [
+  "Merokok/vape dan makan (kecuali snack serta air minum secukupnya).",
+  "Mencari jawaban di internet atau bertanya kepada orang di sekitar.",
+  "Membawa dan menggunakan catatan atau buku dalam bentuk apa pun; kertas buram juga tidak diperkenankan.",
+  "Menggunakan perangkat komunikasi apa pun dan alat hitung/kalkulator fisik (disediakan tab Excel di aplikasi ujian).",
+  "Mengambil gambar, menyalin, merekam, atau menyebarluaskan soal dan jawaban ujian.",
+  "Meninggalkan area pengawasan kamera, termasuk keluar ruangan atau ke kamar kecil.",
+  "Pelanggaran dicatat dalam berita acara dan peserta dapat dinyatakan gugur. Selalu ikuti panduan resmi terbaru dari penyelenggara.",
 ];
 
-export const PASS_RATES = [
-  { subject: "PPh OP & SPT", lulus: 44.98, ulang: 37.41 },
-  { subject: "KUP, PPSP, PP", lulus: 25.9, ulang: 56.7 },
-  { subject: "PPh Pot/Put", lulus: 64.89, ulang: 17.6 },
-  { subject: "PPN & SPT PPN", lulus: 58.5, ulang: 24.26 },
-  { subject: "PBB P5L & BM", lulus: 49.23, ulang: 33.37 },
-  { subject: "Kode Etik Profesi", lulus: 53.12, ulang: 29.53 },
-];
-
-export const TESTIMONIALS = [
-  {
-    text: "Secara keseluruhan simulator maupun bank soal membantu saya persiapan. Bahan bacaan juga menghemat waktu daripada mengumpulkan satu per satu.",
-    author: "Member, September 2025",
-  },
-  {
-    text: "Simulatornya bagus, aku nemu materi PBB P5L yang kebetulan harus mengulang. Pas ujian hitungan-hitungan jadi lancar. Terima kasih!",
-    author: "Member, Mei 2025",
-  },
-  {
-    text: "Belajar jadi lebih terarah. Bisa mengulang bagian yang masih lemah tanpa batas sampai benar-benar paham.",
-    author: "Pengguna, Desember 2024",
-  },
-];
+export const EXAM_TOKENS = ["1234", "USKP2026"];
 
 // Susunan mata ujian per tingkat (A, B, C) — untuk landing page
 export const LEVELS = [

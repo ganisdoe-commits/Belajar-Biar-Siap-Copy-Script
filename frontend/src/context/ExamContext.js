@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 import * as api from "../api";
 
 const ExamContext = createContext(null);
@@ -10,19 +10,21 @@ export const useExam = () => {
 };
 
 const STORAGE_KEY = "bbp_candidate";
+const SESSION_KEY = "bbp_session";
+
+const readJSON = (key) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
 
 export const ExamProvider = ({ children }) => {
-  const [candidate, setCandidate] = useState(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
-
-  const [session, setSessionState] = useState(null);
-  const sessionRef = useRef(null);
+  const [candidate, setCandidate] = useState(() => readJSON(STORAGE_KEY));
+  const [session, setSessionState] = useState(() => readJSON(SESSION_KEY));
+  const sessionRef = useRef(session);
   const setSession = useCallback((val) => {
     setSessionState((prev) => {
       const next = typeof val === "function" ? val(prev) : val;
@@ -30,6 +32,12 @@ export const ExamProvider = ({ children }) => {
       return next;
     });
   }, []);
+
+  // Simpan otomatis ke memori perangkat setiap ada perubahan (seperti CAT asli).
+  useEffect(() => {
+    if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    else localStorage.removeItem(SESSION_KEY);
+  }, [session]);
 
   const loginCandidate = useCallback((data) => {
     setCandidate(data);
@@ -39,51 +47,60 @@ export const ExamProvider = ({ children }) => {
   const logoutCandidate = useCallback(() => {
     setCandidate(null);
     localStorage.removeItem(STORAGE_KEY);
-  }, []);
+    setSession(null);
+  }, [setSession]);
 
   const startSession = useCallback(async (subject) => {
-    const data = await api.getExam(subject.id);
+    const data = await api.startExam({ subject_id: subject.id, candidate: candidate || { name: "Peserta", id: "" } });
+    const offset = new Date(data.server_time).getTime() - Date.now();
     const newSession = {
+      sessionId: data.session_id,
       subject: data.subject,
       questions: data.questions,
       answers: {},
       flags: {},
       notes: "",
+      sheet: {},
       durationSec: data.duration_sec,
+      startedAt: data.started_at,
+      deadlineMs: new Date(data.deadline).getTime() - offset,
+      savedAt: null,
       submitted: false,
     };
     setSession(newSession);
     return newSession;
-  }, [setSession]);
+  }, [candidate, setSession]);
 
-  const setAnswer = useCallback((qid, key) => {
-    setSession((s) => (s ? { ...s, answers: { ...s.answers, [qid]: key } } : s));
-  }, [setSession]);
+  const patch = useCallback((fn) => setSession((s) => (s && !s.submitted ? fn(s) : s)), [setSession]);
+  const setAnswer = useCallback((qid, key) => patch((s) => ({ ...s, answers: { ...s.answers, [qid]: key } })), [patch]);
+  const toggleFlag = useCallback((qid) => patch((s) => {
+    const flags = { ...s.flags };
+    if (flags[qid]) delete flags[qid];
+    else flags[qid] = true;
+    return { ...s, flags };
+  }), [patch]);
+  const setNotes = useCallback((text) => patch((s) => ({ ...s, notes: text })), [patch]);
+  const setSheet = useCallback((sheet) => patch((s) => ({ ...s, sheet })), [patch]);
 
-  const toggleFlag = useCallback((qid) => {
-    setSession((s) => {
-      if (!s) return s;
-      const flags = { ...s.flags };
-      if (flags[qid]) delete flags[qid];
-      else flags[qid] = true;
-      return { ...s, flags };
-    });
-  }, [setSession]);
-
-  const setNotes = useCallback((text) => {
-    setSession((s) => (s ? { ...s, notes: text } : s));
+  const syncSession = useCallback(async () => {
+    const s = sessionRef.current;
+    if (!s || s.submitted) return null;
+    const res = await api.saveExam(s.sessionId, { answers: s.answers, flags: s.flags });
+    setSession((cur) => (cur && cur.sessionId === s.sessionId ? { ...cur, savedAt: res.saved_at } : cur));
+    return res;
   }, [setSession]);
 
   const submitSession = useCallback(async () => {
     const s = sessionRef.current;
-    if (!s) return null;
+    if (!s || s.submitted) return s?.result || null;
     const data = await api.submitExam({
       subject_id: s.subject.id,
+      session_id: s.sessionId,
       candidate: candidate || { name: "Peserta", id: "" },
       answers: s.answers,
       question_ids: s.questions.map((q) => q.id),
     });
-    setSession({ ...s, submitted: true, result: data.result, review: data.review });
+    setSession({ ...s, submitted: true, finishedAt: data.result.date, result: data.result, review: data.review });
     return data.result;
   }, [candidate, setSession]);
 
@@ -92,16 +109,8 @@ export const ExamProvider = ({ children }) => {
   return (
     <ExamContext.Provider
       value={{
-        candidate,
-        loginCandidate,
-        logoutCandidate,
-        session,
-        startSession,
-        setAnswer,
-        toggleFlag,
-        setNotes,
-        submitSession,
-        clearSession,
+        candidate, loginCandidate, logoutCandidate, session, startSession,
+        setAnswer, toggleFlag, setNotes, setSheet, syncSession, submitSession, clearSession,
       }}
     >
       {children}

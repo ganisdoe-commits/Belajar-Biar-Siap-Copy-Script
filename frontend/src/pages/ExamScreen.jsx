@@ -1,330 +1,166 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Clock, Flag, ChevronLeft, ChevronRight, Calculator as CalcIcon,
-  StickyNote, Send, Lock, X, AlertTriangle,
-} from "lucide-react";
+import { Clock, X, AlertTriangle, Send, BookOpen, ListChecks, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Textarea } from "../components/ui/textarea";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from "../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "../components/ui/dialog";
 import Calculator from "../components/Calculator";
+import WorkSheet from "../components/exam/WorkSheet";
+import QuestionPanel from "../components/exam/QuestionPanel";
+import NavigatorPanel from "../components/exam/NavigatorPanel";
+import ExtraContent from "../components/exam/ExtraContent";
+import RegulationViewer from "../components/exam/RegulationViewer";
 import { useExam } from "../context/ExamContext";
+import { useToast } from "../hooks/use-toast";
+import { getSubjectRegulations } from "../api";
 
-function fmt(sec) {
-  const h = String(Math.floor(sec / 3600)).padStart(2, "0");
-  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
-  const s = String(sec % 60).padStart(2, "0");
-  return `${h}:${m}:${s}`;
-}
+const fmt = (sec) => [Math.floor(sec / 3600), Math.floor((sec % 3600) / 60), sec % 60].map((n) => String(n).padStart(2, "0")).join(":");
+const AUTOSAVE_MS = 60000;
+
+const Drawer = ({ title, onClose, children, side = "right" }) => (
+  <div className="fixed inset-0 z-50 flex lg:hidden">
+    <div className="absolute inset-0 bg-indigo-950/50" onClick={onClose} />
+    <div className={`relative h-full w-80 max-w-[88%] overflow-y-auto bg-indigo-50 p-3 shadow-2xl ${side === "right" ? "ml-auto" : ""}`}>
+      <div className="mb-3 flex items-center justify-between"><span className="font-bold text-indigo-950">{title}</span><button onClick={onClose}><X className="h-5 w-5 text-slate-500" /></button></div>
+      {children}
+    </div>
+  </div>
+);
 
 export default function ExamScreen() {
   const { subjectId } = useParams();
   const navigate = useNavigate();
-  const { session, setAnswer, toggleFlag, setNotes, submitSession, candidate } = useExam();
-
+  const { toast } = useToast();
+  const { session, setAnswer, toggleFlag, setNotes, setSheet, syncSession, submitSession, candidate } = useExam();
   const [current, setCurrent] = useState(0);
-  const [remaining, setRemaining] = useState(0);
-  const [showCalc, setShowCalc] = useState(false);
-  const [showNote, setShowNote] = useState(false);
+  const [now, setNow] = useState(Date.now());
+  const [tool, setTool] = useState(null);
+  const [drawer, setDrawer] = useState(null);
   const [showSubmit, setShowSubmit] = useState(false);
-  const [mobileNav, setMobileNav] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [online, setOnline] = useState(navigator.onLine);
+  const [docs, setDocs] = useState([]);
+  const [openDoc, setOpenDoc] = useState(null);
+  const autoSubmitted = useRef(false);
 
-  const subject = session?.subject;
-
+  const valid = session && session.subject.id === subjectId;
   useEffect(() => {
-    if (!session || session.subject.id !== subjectId) {
-      navigate(`/pre-exam/${subjectId}`, { replace: true });
+    if (!valid) navigate(`/pre-exam/${subjectId}`, { replace: true });
+    else if (session.submitted) navigate("/selesai", { replace: true });
+  }, [valid, session, subjectId, navigate]);
+
+  useEffect(() => { getSubjectRegulations(subjectId).then(setDocs).catch(() => setDocs([])); }, [subjectId]);
+
+  const doSubmit = useCallback(async (auto = false) => {
+    try {
+      setSubmitting(true);
+      await submitSession();
+      navigate("/selesai");
+    } catch (e) {
+      setSubmitting(false);
+      if (e?.response?.status === 409) { navigate("/dashboard"); return; }
+      autoSubmitted.current = false;
+      toast({ title: auto ? "Waktu habis — menunggu koneksi" : "Gagal mengirim jawaban", description: "Jawaban tetap tersimpan di perangkat. Periksa koneksi internet lalu coba lagi.", variant: "destructive" });
     }
-  }, [session, subjectId, navigate]);
+  }, [submitSession, navigate, toast]);
+
+  const sync = useCallback(() => syncSession().then(() => setOnline(true)).catch(() => setOnline(false)), [syncSession]);
 
   useEffect(() => {
-    if (session) setRemaining(session.durationSec);
-  }, [session]);
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    const save = setInterval(sync, AUTOSAVE_MS);
+    const on = () => { setOnline(true); sync(); };
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => { clearInterval(tick); clearInterval(save); window.removeEventListener("online", on); window.removeEventListener("offline", off); };
+  }, [sync]);
 
-  const doSubmit = useCallback(async () => {
-    await submitSession();
-    navigate("/result");
-  }, [submitSession, navigate]);
-
+  const remaining = valid ? Math.max(0, Math.round((session.deadlineMs - now) / 1000)) : 0;
   useEffect(() => {
-    if (!session || session.submitted) return;
-    const t = setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          clearInterval(t);
-          doSubmit();
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [session, doSubmit]);
+    if (valid && !session.submitted && remaining === 0 && !autoSubmitted.current) {
+      autoSubmitted.current = true;
+      doSubmit(true);
+    }
+  }, [valid, session, remaining, doSubmit]);
 
-  const questions = session?.questions || [];
-  const answers = session?.answers || {};
-  const flags = session?.flags || {};
+  if (!valid || session.submitted) return null;
+  const { questions, answers, flags } = session;
   const q = questions[current];
-
-  const answeredCount = useMemo(() => Object.keys(answers).length, [answers]);
-  const flaggedCount = useMemo(() => Object.keys(flags).length, [flags]);
-
-  if (!session || !q) return null;
-
-  const lowTime = remaining <= 300;
+  const unanswered = questions.filter((x) => !answers[x.id]).length;
+  const navProps = { questions, answers, flags, current, online, savedAt: session.savedAt };
 
   return (
-    <div className="flex min-h-screen flex-col bg-indigo-50/40">
-      {/* TOP BAR */}
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-indigo-900 bg-indigo-950 px-4 py-2.5 text-white lg:px-6">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <Lock className="h-4 w-4 shrink-0 text-emerald-400" />
-          <div className="overflow-hidden">
-            <div className="truncate text-sm font-bold">{subject?.name}</div>
-            <div className="truncate text-[11px] text-indigo-300">{candidate?.name} · {candidate?.id}</div>
-          </div>
+    <div className="flex h-screen flex-col bg-slate-100">
+      <header className="z-30 flex h-[52px] shrink-0 items-center justify-between gap-3 bg-indigo-950 px-4 text-white lg:px-6">
+        <div className="min-w-0">
+          <div className="truncate text-sm font-bold">{session.subject.name}</div>
+          <div className="truncate text-[11px] text-indigo-300">Simulasi CAT · Tingkat {session.subject.level || "A"} · {candidate?.name}</div>
         </div>
-        <div
-          className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-extrabold tabular-nums ${
-            lowTime ? "animate-pulse bg-red-500 text-white" : "bg-indigo-900 text-amber-300"
-          }`}
-        >
-          <Clock className="h-4 w-4" /> {fmt(remaining)}
+        <div data-testid="exam-timer" className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-extrabold tabular-nums ${remaining <= 300 ? "animate-pulse bg-red-500" : "bg-indigo-900 text-amber-300"}`}>
+          <Clock className="h-4 w-4" /> <span className="hidden sm:inline text-[11px] font-semibold uppercase">Sisa Waktu</span> {fmt(remaining)}
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-5 px-4 py-5 lg:px-6">
-        {/* MAIN */}
-        <main className="flex min-w-0 flex-1 flex-col">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-semibold text-slate-500">
-              Soal <span className="text-indigo-950">{current + 1}</span> dari {questions.length}
-            </div>
-            <button
-              onClick={() => toggleFlag(q.id)}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors ${
-                flags[q.id]
-                  ? "border-amber-300 bg-amber-100 text-amber-700"
-                  : "border-indigo-200 bg-white text-slate-600 hover:bg-indigo-50"
-              }`}
-            >
-              <Flag className={`h-4 w-4 ${flags[q.id] ? "fill-amber-500 text-amber-500" : ""}`} />
-              {flags[q.id] ? "Ditandai" : "Tandai ragu"}
-            </button>
-          </div>
-
-          <div className="mt-3 flex-1 rounded-2xl border border-indigo-100 bg-white p-6 lg:p-8">
-            <p className="text-[17px] font-semibold leading-relaxed text-indigo-950">{q.question}</p>
-            <div className="mt-6 space-y-3">
-              {q.options.map((o) => {
-                const selected = answers[q.id] === o.key;
-                return (
-                  <button
-                    key={o.key}
-                    onClick={() => setAnswer(q.id, o.key)}
-                    className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all ${
-                      selected
-                        ? "border-indigo-700 bg-indigo-50 ring-1 ring-indigo-700"
-                        : "border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/50"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
-                        selected ? "bg-indigo-700 text-white" : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {o.key}
-                    </span>
-                    <span className={`text-[15px] ${selected ? "font-semibold text-indigo-900" : "text-slate-700"}`}>
-                      {o.text}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* nav + tools */}
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={current === 0}
-                onClick={() => setCurrent((c) => Math.max(0, c - 1))}
-                className="border-indigo-200 font-semibold text-indigo-700"
-              >
-                <ChevronLeft className="mr-1 h-4 w-4" /> Sebelumnya
-              </Button>
-              <Button
-                disabled={current === questions.length - 1}
-                onClick={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))}
-                className="bg-indigo-700 font-semibold hover:bg-indigo-900"
-              >
-                Berikutnya <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowCalc(true)} className="border-indigo-200 font-semibold text-indigo-700">
-                <CalcIcon className="mr-1.5 h-4 w-4" /> Kalkulator
-              </Button>
-              <Button variant="outline" onClick={() => setShowNote(true)} className="border-indigo-200 font-semibold text-indigo-700">
-                <StickyNote className="mr-1.5 h-4 w-4" /> Catatan
-              </Button>
-              <Button onClick={() => setMobileNav(true)} className="bg-amber-500 font-bold text-indigo-950 hover:bg-amber-400 lg:hidden">
-                Navigasi
-              </Button>
-            </div>
-          </div>
-        </main>
-
-        {/* SIDEBAR NAVIGATOR (desktop) */}
-        <aside className="hidden w-72 shrink-0 lg:block">
-          <NavigatorPanel
-            questions={questions} answers={answers} flags={flags} current={current}
-            answeredCount={answeredCount} flaggedCount={flaggedCount}
-            onJump={(i) => setCurrent(i)} onSubmit={() => setShowSubmit(true)}
-          />
-        </aside>
+      <div className="flex shrink-0 gap-2 border-b border-indigo-100 bg-white px-3 py-2 lg:hidden">
+        <Button data-testid="mobile-extra-content" size="sm" variant="outline" onClick={() => setDrawer("extra")} className="flex-1 border-indigo-200 text-indigo-700"><BookOpen className="mr-1 h-4 w-4" /> Ekstra Konten</Button>
+        <Button data-testid="mobile-navigator" size="sm" onClick={() => setDrawer("nav")} className="flex-1 bg-indigo-700"><ListChecks className="mr-1 h-4 w-4" /> Navigasi</Button>
       </div>
 
-      {/* CALCULATOR DIALOG */}
-      <Dialog open={showCalc} onOpenChange={setShowCalc}>
-        <DialogContent className="max-w-xs">
-          <DialogHeader>
-            <DialogTitle>Kalkulator</DialogTitle>
-          </DialogHeader>
-          <Calculator />
-        </DialogContent>
-      </Dialog>
+      <div className="mx-auto grid min-h-0 w-full max-w-[1500px] flex-1 gap-4 p-3 lg:grid-cols-[260px_minmax(0,1fr)_280px] lg:p-4">
+        <aside className="hidden min-h-0 overflow-y-auto lg:block"><ExtraContent docs={docs} onOpen={setOpenDoc} /></aside>
+        <main className="min-h-0">
+          <QuestionPanel q={q} index={current} total={questions.length} selected={answers[q.id]} flagged={!!flags[q.id]}
+            onSelect={(k) => setAnswer(q.id, k)} onFlag={() => toggleFlag(q.id)}
+            onPrev={() => setCurrent((c) => Math.max(0, c - 1))} onNext={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))}
+            onTool={setTool} />
+        </main>
+        <aside className="hidden min-h-0 overflow-y-auto lg:block"><NavigatorPanel {...navProps} onJump={setCurrent} onSubmit={() => setShowSubmit(true)} /></aside>
+      </div>
 
-      {/* NOTE DIALOG */}
-      <Dialog open={showNote} onOpenChange={setShowNote}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Catatan</DialogTitle>
-            <DialogDescription>Gunakan untuk coretan selama mengerjakan soal (tidak dinilai).</DialogDescription>
-          </DialogHeader>
-          <Textarea
-            value={session.notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Tulis catatan Anda di sini..."
-            className="min-h-[220px] resize-none"
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* MOBILE NAVIGATOR */}
-      {mobileNav && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div className="absolute inset-0 bg-indigo-950/50" onClick={() => setMobileNav(false)} />
-          <div className="relative ml-auto h-full w-80 max-w-[85%] overflow-y-auto bg-indigo-50/60 p-4 shadow-2xl">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="font-bold text-indigo-950">Navigasi Soal</span>
-              <button onClick={() => setMobileNav(false)}><X className="h-5 w-5 text-slate-500" /></button>
-            </div>
-            <NavigatorPanel
-              questions={questions} answers={answers} flags={flags} current={current}
-              answeredCount={answeredCount} flaggedCount={flaggedCount}
-              onJump={(i) => { setCurrent(i); setMobileNav(false); }}
-              onSubmit={() => { setMobileNav(false); setShowSubmit(true); }}
-            />
-          </div>
-        </div>
+      {drawer === "extra" && <Drawer side="left" title="Ekstra Konten" onClose={() => setDrawer(null)}><ExtraContent docs={docs} onOpen={(d) => { setDrawer(null); setOpenDoc(d); }} /></Drawer>}
+      {drawer === "nav" && (
+        <Drawer title="Navigasi Soal" onClose={() => setDrawer(null)}>
+          <NavigatorPanel {...navProps} onJump={(i) => { setCurrent(i); setDrawer(null); }} onSubmit={() => { setDrawer(null); setShowSubmit(true); }} />
+        </Drawer>
       )}
+      {openDoc && <RegulationViewer doc={openDoc} onClose={() => setOpenDoc(null)} />}
 
-      {/* SUBMIT CONFIRM */}
-      <Dialog open={showSubmit} onOpenChange={setShowSubmit}>
+      <Dialog open={tool === "calc"} onOpenChange={(o) => !o && setTool(null)}>
+        <DialogContent className="max-w-xs"><DialogHeader><DialogTitle>Kalkulator</DialogTitle></DialogHeader><Calculator /></DialogContent>
+      </Dialog>
+      <Dialog open={tool === "note"} onOpenChange={(o) => !o && setTool(null)}>
         <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Note</DialogTitle><DialogDescription>Coretan selama mengerjakan soal (tidak dinilai).</DialogDescription></DialogHeader>
+          <Textarea data-testid="note-textarea" value={session.notes} onChange={(e) => setNotes(e.target.value)} placeholder="Tulis catatan Anda di sini..." className="min-h-[240px] resize-none" />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={tool === "sheet"} onOpenChange={(o) => !o && setTool(null)}>
+        <DialogContent className="flex h-[85vh] max-w-6xl flex-col">
+          <DialogHeader><DialogTitle>Lembar Kerja</DialogTitle><DialogDescription>Pengganti kertas buram — hitung dengan sel dan rumus seperti Excel.</DialogDescription></DialogHeader>
+          <div className="min-h-0 flex-1"><WorkSheet cells={session.sheet || {}} onChange={setSheet} /></div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSubmit} onOpenChange={setShowSubmit}>
+        <DialogContent data-testid="submit-confirm-dialog" className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" /> Kirim & Selesai?
-            </DialogTitle>
-            <DialogDescription>
-              Setelah dikirim, jawaban <b>terkunci</b> dan tidak dapat diubah lagi.
-            </DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-amber-500" /> Kirim & Selesai?</DialogTitle>
+            <DialogDescription>Jawaban yang telah terkirim <b>terkunci</b> oleh sistem dan tidak dapat diakses kembali.</DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-3 gap-3 rounded-xl bg-indigo-50 p-4 text-center">
-            <div>
-              <div className="text-2xl font-extrabold text-emerald-600">{answeredCount}</div>
-              <div className="text-xs font-medium text-slate-500">Terjawab</div>
+          {unanswered > 0 && (
+            <div data-testid="submit-unanswered-warning" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              Masih ada <b>{unanswered} soal</b> belum terjawab. Pada ujian sesungguhnya, tombol ini hanya ditekan bila seluruh soal telah selesai dikerjakan.
             </div>
-            <div>
-              <div className="text-2xl font-extrabold text-slate-400">{questions.length - answeredCount}</div>
-              <div className="text-xs font-medium text-slate-500">Belum</div>
-            </div>
-            <div>
-              <div className="text-2xl font-extrabold text-amber-500">{flaggedCount}</div>
-              <div className="text-xs font-medium text-slate-500">Ditandai</div>
-            </div>
-          </div>
+          )}
           <DialogFooter className="gap-2 sm:gap-2">
-            <Button variant="outline" onClick={() => setShowSubmit(false)} className="border-indigo-200 font-semibold text-indigo-700">
-              Periksa lagi
-            </Button>
-            <Button onClick={doSubmit} className="bg-indigo-700 font-bold hover:bg-indigo-900">
-              <Send className="mr-1.5 h-4 w-4" /> Kirim & Selesai
+            <Button variant="outline" onClick={() => setShowSubmit(false)} className="border-indigo-200 font-semibold text-indigo-700">Periksa lagi</Button>
+            <Button data-testid="confirm-submit-button" disabled={submitting} onClick={() => doSubmit(false)} className="bg-emerald-700 font-bold hover:bg-emerald-800">
+              {submitting ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Send className="mr-1.5 h-4 w-4" />} Kirim & Selesai
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-function NavigatorPanel({ questions, answers, flags, current, answeredCount, flaggedCount, onJump, onSubmit }) {
-  return (
-    <div className="rounded-2xl border border-indigo-100 bg-white p-5">
-      <div className="mb-4 grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-lg bg-emerald-50 py-2">
-          <div className="text-lg font-extrabold text-emerald-600">{answeredCount}</div>
-          <div className="text-[10px] font-semibold text-slate-500">Terjawab</div>
-        </div>
-        <div className="rounded-lg bg-slate-50 py-2">
-          <div className="text-lg font-extrabold text-slate-400">{questions.length - answeredCount}</div>
-          <div className="text-[10px] font-semibold text-slate-500">Belum</div>
-        </div>
-        <div className="rounded-lg bg-amber-50 py-2">
-          <div className="text-lg font-extrabold text-amber-500">{flaggedCount}</div>
-          <div className="text-[10px] font-semibold text-slate-500">Ragu</div>
-        </div>
-      </div>
-
-      <div className="grid max-h-[46vh] grid-cols-6 gap-1.5 overflow-y-auto pr-1 lg:grid-cols-5">
-        {questions.map((qq, i) => {
-          const answered = answers[qq.id];
-          const flagged = flags[qq.id];
-          const isCurrent = i === current;
-          return (
-            <button
-              key={qq.id}
-              onClick={() => onJump(i)}
-              className={`relative flex h-9 items-center justify-center rounded-lg text-xs font-bold transition-all ${
-                isCurrent ? "ring-2 ring-indigo-700 ring-offset-1" : ""
-              } ${
-                flagged
-                  ? "bg-amber-400 text-indigo-950"
-                  : answered
-                  ? "bg-emerald-500 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {i + 1}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-4 space-y-1.5 text-xs text-slate-500">
-        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-emerald-500" /> Terjawab</div>
-        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-amber-400" /> Ditandai ragu</div>
-        <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-slate-100 ring-1 ring-slate-200" /> Belum dijawab</div>
-      </div>
-
-      <Button onClick={onSubmit} className="mt-5 h-11 w-full bg-indigo-700 font-bold hover:bg-indigo-900">
-        <Send className="mr-1.5 h-4 w-4" /> Kirim & Selesai
-      </Button>
     </div>
   );
 }
