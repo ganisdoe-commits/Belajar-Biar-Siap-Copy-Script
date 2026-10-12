@@ -1,0 +1,42 @@
+{
+  "summary": "Iteration-4 end-to-end readiness check for 'Belajar Biar Pintar'. Verified new Dokumentasi feature (admin tab + backend endpoint) and full participant simulation across all 3 levels. Backend: 5/5 new docs-endpoint tests pass + 45/49 regression tests pass (4 pre-existing failures are environmental — missing /tmp/b2/c_kup.docx fixture file left by a previous agent, not a functional regression). Frontend: Dokumentasi tab renders 10 GFM tables, 3 h1s, 17 h2s, BAGIAN I + BAGIAN II both present (13,640 chars), print+download buttons visible, download delivers 'PROTOTYPE.md'. All 7 admin tabs (pg/esai/import/peraturan/hasil/keamanan/dokumentasi) load without errors. E2E flow verified: Tingkat A 'PPh OP & SPT PPh OP' (120 min timer 01:59:58, 3 regulations SDSN+PP58+SPT PPh OP form, PDF iframe fetches /api/regulations/<id>/file, worksheet =A1*5% on 1000 => 50, autosave+reload preserves answers & timer continues 01:59:43, nav-q-1 blue after reload, submit shows unanswered warning, /selesai shows 'Soal Terjawab: 2 dari 40' — iteration_3 'undefined' bug FIXED, Rapor shows 1 attempt in A1 PPh OP with 'Rincian per materi belum tersedia' per prototype note). Tingkat B 'PPh Badan & SPT PPh Badan' (90 min, 2 regulations incl Excel form, 35 excel-tab-* confirmed, excel-sheet visible). Tingkat C 'KUP ... Internasional dan P3B' (90 min, 3 regulations: SDSN, UU PPSP, UU Pengadilan Pajak). Essay /esai renders level tabs, opens B subject, textarea editable. Mobile 390x844: dashboard scrollW=390=clientW, pre-exam=390, exam=390, selesai=390 — iteration_3 mobile overflow bug FIXED. mobile-extra-content drawer opens and lists 6 items (petunjuk + regulations). Landing: landing-hook present, footer-disclaimer present, no '30.000+'/'1.000+'/'250+'/testimoni text. Cleanup: 8 TEST_ exam_sessions + 8 TEST_ results deleted via mongosh. Real regulations and subjects untouched.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "backend/tests/test_new_features.py (preview_c_kup etc)", "issue": "4 pre-existing tests reference /tmp/b2/c_kup.docx which does not exist in current environment (test fixture file). Not a code bug — just missing fixture file left over from previous agent's local setup. Suggest marking those tests with pytest.skip when file missing, or shipping the fixture under /app/backend/tests/fixtures/."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_docs_endpoint.py",
+    "/app/test_reports/pytest/pytest_iter4_docs.xml",
+    "/app/test_reports/pytest/pytest_iter4_all.xml"
+  ],
+  "action_items": [
+    "(Optional, low priority) Fix /app/backend/tests/test_new_features.py so it skips when /tmp/b2/c_kup.docx fixture is missing instead of hard-failing — or commit the fixture into the repo under tests/fixtures/.",
+    "(Already-covered-by-prototype-note, informational) Hasil per Materi did not render on the C result page in the test (we submitted with 0 answers, so materi_stats is empty); confirm this is intentional (empty state hidden) or render an empty-state placeholder."
+  ],
+  "critical_code_review_comments": [
+    "DocsViewer.jsx loads the markdown via adminGetPrototypeDoc() with the admin JWT header — good, keeps the file behind auth; download uses Blob of in-memory text so the user's version matches what was served (not a race with the file on disk).",
+    "/api/admin/docs/prototype reads PROTOTYPE.md from disk per request and returns mtime as updated_at (ISO UTC). Fine for prototype; for production consider caching + ETag.",
+    "The 'undefined dari 40' bug flagged in iteration_3 is fixed in ExamFinished.jsx L23 using `${r.total - r.unanswered} dari ${r.total}` (not using the removed `r.answered` field).",
+    "Mobile exam overflow at 390 is now 390=390 on every screen (fixed since iteration_3).",
+    "Prototype doc is intentionally served to admins only; participants cannot reach /api/admin/docs/prototype — good content separation.",
+    "ReactMarkdown + remark-gfm render GFM tables and task-list checkboxes correctly in Dokumentasi (10 tables rendered)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_docs_endpoint.py",
+    "/app/test_reports/iteration_4.json"
+  ],
+  "success_rate": {"backend": "100% on new feature (5/5) and 100% on 2026-era regression (28/28 regs+session + 9 new-features regression that have the fixture); overall this run 45/49 counting the 4 env-missing-fixture failures as failures", "frontend": "100% of requested flows pass"},
+  "test_credentials": "admin password admin123 (unchanged). Candidate: any name via /dashboard, token 1234.",
+  "seed_data_creation": "Created and then deleted: TEST_Agent4, TEST_Agent4b, TEST_Agent4e, TEST_m candidate names (8 exam_sessions + 8 results removed via motor delete_many on candidate_name ^TEST_). No regulations or subjects touched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The 4 'FileNotFoundError: /tmp/b2/c_kup.docx' failures in test_new_features.py are not real failures — the fixture file was never shipped in /app. Either skip those with a @pytest.skip('fixture missing') if not os.path.exists, or add the docx fixture under /app/backend/tests/fixtures/c_kup.docx and update the path. All other backend tests pass. The /admin/docs/prototype endpoint requires admin JWT, returns {filename, content, updated_at}. The frontend Dokumentasi tab (admin-tab-dokumentasi) renders markdown via react-markdown + remark-gfm with .md-doc styles. For mobile exam-screen the layout is correct at 390px. For C/B results that have no answers, the UI omits 'Hasil per Materi' — this is likely the intended empty state.",
+  "rca of the issue": "No new critical issues. Iteration_3's two bugs are both verified fixed: (1) 'Soal Terjawab: undefined dari 40' now renders real numbers via `${r.total - r.unanswered} dari ${r.total}`. (2) ExamScreen mobile overflow at 390px is gone (scrollW === clientW === 390 at every stage). The only outstanding note is cosmetic: 4 backend tests expect a /tmp fixture file that does not exist in this environment — purely an env issue, no app code is at fault."
+}

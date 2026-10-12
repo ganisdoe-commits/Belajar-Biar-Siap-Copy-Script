@@ -161,7 +161,7 @@ def test_change_password_full_flow():
 
 
 # ---------------------------- Import preview ----------------------------
-C_KUP = "/tmp/b2/c_kup.docx"
+C_KUP = "/app/backend/tests/fixtures/c_kup.docx"
 BAD = "/app/backend/tests/test_bad.docx"
 EMPTY = "/app/backend/tests/test_empty.docx"
 

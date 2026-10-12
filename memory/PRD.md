@@ -25,6 +25,8 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 
 - 2026-06: Disesuaikan dgn Panduan Umum & Teknis UKP Online: alur Detail Ujian -> Pakta Integritas -> pratinjau kamera (lokal) -> token (1234) -> Panduan -> ujian 3 kolom (Ekstra Konten | Soal KEMBALI/TANDAI/LANJUT + Note/Lembar Kerja/Kalkulator | Navigasi online + Statistik + KIRIM & SELESAI) -> halaman 'Ujian Telah Selesai' -> nilai. Lembar Kerja ala Excel (rumus, SUM/ROUND dll). Admin tab 'Peraturan' (PDF/Excel, pilih mata ujian). Beranda: hook baru, klaim 250+/30.000+/1.000+, testimoni & infografis kelulusan dihapus; footer penafian tidak berafiliasi. Testing iteration_3: backend 28/28, frontend lulus (2 temuan kecil sudah diperbaiki)
 
+- 2026-06: Catatan Prototipe markdown (/app/backend/docs/PROTOTYPE.md; Bagian I panduan pemilik, Bagian II ringkasan teknis) + tab Admin 'Dokumentasi' (render react-markdown+remark-gfm, unduh .md, cetak/PDF), GET /api/admin/docs/prototype (admin). E2E readiness iteration_4: semua alur A/B/C, esai, admin, mobile lulus. Fixture tes c_kup.docx di backend/tests/fixtures
+
 ## Backlog
 - P0: User ganti password admin lewat menu 'Ganti Password' sebelum production
 - P0: Sisa Tingkat C (8 mata ujian lagi) — user akan upload bertahap
