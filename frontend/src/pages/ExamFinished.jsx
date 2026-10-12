@@ -20,7 +20,7 @@ export default function ExamFinished() {
     ["Mata Ujian", `${session.subject.name} (Tingkat ${session.subject.level || "A"})`],
     ["Waktu Mulai", fmtTime(session.startedAt)],
     ["Waktu Selesai", fmtTime(session.finishedAt)],
-    ["Soal Terjawab", `${r.answered} dari ${r.total}`],
+    ["Soal Terjawab", `${r.total - r.unanswered} dari ${r.total}`],
     ["Status", "Ujian telah selesai"],
   ];
 

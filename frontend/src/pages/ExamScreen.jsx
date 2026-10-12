@@ -107,9 +107,9 @@ export default function ExamScreen() {
         <Button data-testid="mobile-navigator" size="sm" onClick={() => setDrawer("nav")} className="flex-1 bg-indigo-700"><ListChecks className="mr-1 h-4 w-4" /> Navigasi</Button>
       </div>
 
-      <div className="mx-auto grid min-h-0 w-full max-w-[1500px] flex-1 gap-4 p-3 lg:grid-cols-[260px_minmax(0,1fr)_280px] lg:p-4">
+      <div className="mx-auto grid min-h-0 w-full max-w-[1500px] flex-1 grid-cols-1 gap-4 p-3 lg:grid-cols-[260px_minmax(0,1fr)_280px] lg:p-4">
         <aside className="hidden min-h-0 overflow-y-auto lg:block"><ExtraContent docs={docs} onOpen={setOpenDoc} /></aside>
-        <main className="min-h-0">
+        <main className="min-h-0 min-w-0">
           <QuestionPanel q={q} index={current} total={questions.length} selected={answers[q.id]} flagged={!!flags[q.id]}
             onSelect={(k) => setAnswer(q.id, k)} onFlag={() => toggleFlag(q.id)}
             onPrev={() => setCurrent((c) => Math.max(0, c - 1))} onNext={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))}

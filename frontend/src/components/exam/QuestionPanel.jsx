@@ -38,15 +38,15 @@ export default function QuestionPanel({ q, index, total, selected, flagged, onSe
           })}
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2 border-t border-indigo-100 px-5 py-3">
-        <Button data-testid="prev-question-button" variant="outline" disabled={index === 0} onClick={onPrev} className="border-indigo-200 font-bold uppercase text-indigo-700">
+      <div className="flex items-center justify-between gap-2 border-t border-indigo-100 px-3 py-3 sm:px-5">
+        <Button data-testid="prev-question-button" variant="outline" disabled={index === 0} onClick={onPrev} className="border-indigo-200 px-3 text-xs font-bold uppercase text-indigo-700 sm:px-4 sm:text-sm">
           <ChevronLeft className="mr-1 h-4 w-4" /> Kembali
         </Button>
         <Button data-testid="flag-question-button" onClick={onFlag}
-          className={`font-bold uppercase ${flagged ? "bg-red-500 text-white hover:bg-red-600" : "bg-amber-400 text-indigo-950 hover:bg-amber-300"}`}>
-          <Flag className={`mr-1.5 h-4 w-4 ${flagged ? "fill-white" : ""}`} /> {flagged ? "Batal Tandai" : "Tandai"}
+          className={`px-3 text-xs font-bold uppercase sm:px-4 sm:text-sm ${flagged ? "bg-red-500 text-white hover:bg-red-600" : "bg-amber-400 text-indigo-950 hover:bg-amber-300"}`}>
+          <Flag className={`mr-1.5 h-4 w-4 ${flagged ? "fill-white" : ""}`} /> {flagged ? "Batal" : "Tandai"}<span className="hidden sm:inline">{flagged ? " Tandai" : ""}</span>
         </Button>
-        <Button data-testid="next-question-button" disabled={index === total - 1} onClick={onNext} className="bg-indigo-700 font-bold uppercase hover:bg-indigo-900">
+        <Button data-testid="next-question-button" disabled={index === total - 1} onClick={onNext} className="bg-indigo-700 px-3 text-xs font-bold uppercase hover:bg-indigo-900 sm:px-4 sm:text-sm">
           Lanjut <ChevronRight className="ml-1 h-4 w-4" />
         </Button>
       </div>

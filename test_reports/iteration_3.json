@@ -1,0 +1,44 @@
+{
+  "summary": "Iteration-3 testing complete. Backend 28/28 pytest pass (19 new regulations+session + 9 regression). Frontend end-to-end flow verified: landing hook + removed over-claims, pre-exam detail/pact/token flow, 3-column exam screen on desktop with regulation viewer (PDF iframe fetches 200 application/pdf, Excel sheet+tabs), timer continues after viewer, worksheet formulas (A1*A2=5.000, SUM range, ROUND(10/3;2)=3,33, #DIV/0, #CIRC) with cross-dialog persistence, autosave + resume-after-refresh keeps answers+timer, submit flow with unanswered warning -> /selesai (with ONE bug: 'Soal Terjawab: undefined dari 40'), result page + retake, /exam/{id} redirects to /selesai after submit, admin Peraturan tab has all expected test-ids and 2 pre-seeded TEST_ docs. Mobile 390: pre-exam no overflow, exam drawers work and list regulations; exam-screen documentElement scrollWidth > clientWidth at 390 (minor horizontal overflow worth checking).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ExamFinished", "issue": "Row 'Soal Terjawab' renders 'undefined dari 40' because the component reads r.answered but backend result has no 'answered' field (only correct/wrong/unanswered). Fix either frontend (`${r.correct + r.wrong} dari ${r.total}`) or backend (add 'answered': correct+wrong to result).", "selector": "[data-testid='exam-finished']", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "ExamScreen mobile 390px", "issues": ["document.documentElement.scrollWidth > clientWidth (390 vs <390) — minor horizontal overflow outside drawers. Review the top mobile button bar / timer header padding."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_regulations_and_sessions.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_iter3.xml"
+  ],
+  "action_items": [
+    "Fix 'undefined dari 40' in ExamFinished.jsx (`${r.correct + r.wrong} dari ${r.total}` or add 'answered' field in /api/exam/submit result).",
+    "Investigate minor horizontal overflow of ExamScreen at 390px."
+  ],
+  "critical_code_review_comments": [
+    "ExamFinished.jsx L23 uses r.answered which does not exist on the backend result payload — produces 'undefined dari 40'.",
+    "server.py submit_exam: result object exposes correct/wrong/unanswered but not 'answered'. Consider adding 'answered': correct+wrong for symmetry; several places assume it exists.",
+    "regulations.py upload_chunk accepts any content <= CHUNK_BYTES but does not enforce total size vs the init-declared size incrementally — final mismatch is caught in complete (400). OK, just note the double buffering memory cost (full file reassembled in Python before storage upload).",
+    "RegulationViewer uses dynamic import('xlsx') which pulls a large bundle at first open; acceptable but worth noting for perf.",
+    "ExamContext.syncSession captures session_id snapshot via sessionRef — correct guard against stale closures.",
+    "server.save_exam filters answers by valid keys and allowed options (A..D), good defense; however submit_exam does not re-filter answers against session.question_ids for the scoring (uses payload.answers directly keyed by qid, which is safe since qmap only contains session qids)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_regulations_and_sessions.py",
+    "/app/test_reports/iteration_3.json"
+  ],
+  "success_rate": {"backend": "100% (28/28)", "frontend": "~95% — one visible bug (ExamFinished 'undefined'), everything else works"},
+  "test_credentials": "admin password admin123 (NOT changed). Candidate: any name on /dashboard, token 1234.",
+  "seed_data_creation": "Created TEST_UU_SAMPLE_PDF (deleted at end), TEST_SPT_SAMPLE_XLSX (soft-deleted in test), plus TEST_ exam sessions & results — all cleaned via mongosh (2 results, 2 sessions removed). Two pre-existing TEST_ regulations (TEST_SDSN_UU_PAJAK_2023, TEST_SPT_PPh_OP_Coretax) left attached to subject C-KUP as per request.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "pytest.ini forces -n 2 --dist loadscope; always run with `-n 0` for serial for regulations tests (they share _created_regs list). The two pre-existing TEST_ regulations on subject 85f1a3ac-c52a-4464-8af0-3d3257022eff should remain. The 'undefined dari 40' bug on /selesai is reproducible on any submit; main agent to fix in ExamFinished.jsx or server.py.",
+  "rca of the issue": "ExamFinished.jsx L23 references session.result.answered but backend's /api/exam/submit builds result = {total, correct, wrong, unanswered, score, passed, materi_stats, ...} without an 'answered' key. Thus `${r.answered} dari ${r.total}` evaluates to 'undefined dari 40'. Reproduction: finish any exam, go to /selesai, inspect the 'Soal Terjawab' row. Mitigation (frontend-only, 1 line): change `${r.answered} dari ${r.total}` to `${r.correct + r.wrong} dari ${r.total}` in /app/frontend/src/pages/ExamFinished.jsx."
+}
