@@ -1,0 +1,30 @@
+{
+  "summary": "Full-stack regression for v3 security/integrity contract (candidate headers, session_id submit, 150s grace, atomic close, snapshot protection, auto-finalize) + Lembar Kerja Excel-style rounding. Backend: 16/16 pytest cases pass against prod URL. Frontend: candidate login stores {id,secret}, old localStorage without secret correctly treated as logged out, exam-guide now contains the 2,5-minute tolerance paragraph AND the auto-finalize paragraph, full pre-exam -> exam -> worksheet flow works, all 5 Excel ROUND/ROUNDUP/ROUNDDOWN cases match expected displays (-2, 1,01, -1, -2, 1.200), /rapor and /dashboard history reload with candidate headers. Admin regression: 7 tabs present, Peraturan=8 docs, Hasil loads, Mode Esai grid renders A=5/B=8/C=2.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_v3_candidate_sessions.py",
+    "/app/test_reports/pytest/v3_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py GRACE_SECONDS enforcement: _close_session correctly rejects client answers past grace and falls back to last server-saved; _own_session loads sess without the heavy 'questions' snapshot (perf good) but _close_session re-reads full doc via find_one_and_update which is correct.",
+    "finalize_expired loops serially and awaits _close_session per expired session; fine for low volume but could be O(N) slow if many sessions expire concurrently -- consider bulk closing or a background task if usage grows.",
+    "Old backend tests (/app/backend/tests/test_new_features.py, test_regulations_and_sessions.py, backend_test.py) were NOT updated for the new contract and may fail if executed; left untouched per request to avoid changing other suites. New file test_v3_candidate_sessions.py replaces coverage for the changed flows.",
+    "Candidate secret is stored in localStorage (XSS-exposed). Acceptable for interim identity, but worth noting as the request itself calls out as 'interim'."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_v3_candidate_sessions.py (new)"
+  ],
+  "success_rate": {"backend": "100% (16/16)", "frontend": "100%"},
+  "test_credentials": "Admin admin123; candidates auto-registered via POST /api/candidates (TEST_ prefix); token 1234.",
+  "seed_data_creation": "Transient only: TEST_ candidates + their exam_sessions/results and a transient TEST_Snapshot subject; all removed in test_cleanup + post-run DB sweep (results=0, sessions=2, candidates=2, subjects=0 remaining stragglers removed).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "v3 contract fully verified end-to-end. Previous iteration test files use the old pre-v3 contract and will fail; prefer test_v3_candidate_sessions.py going forward. Worksheet formulas verified both via node unit check and via Playwright UI (blur to a different cell is required to read computed display since the active cell shows the raw formula).",
+  "rca of the issue": "N/A - no bugs; all stated features verified. Note: initial Playwright run reported formula FAIL because the script read cell input value while the cell was still the 'active' one (which intentionally shows the formula source, not the computed value). Re-running with blur to J30 showed all five expected displays."
+}
