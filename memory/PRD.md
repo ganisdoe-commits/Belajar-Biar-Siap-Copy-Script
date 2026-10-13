@@ -47,3 +47,8 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 - DONE: revisi PPh OP (A) & KUP (A) diimpor (100 PG + 25 esai masing-masing); terverifikasi PPh OP no.7=D, KUP no.9=D, PPh OP no.74 kasus orang pribadi. Seluruh Tingkat A kini versi revisi Batch 1.
 - DONE: durasi PPh OP (A) & PPh Pot/Put (A) diseragamkan 90 menit (DB + seed_data.py); seluruh 15 mapel kini 90 menit.
 - E2E API test: start (40 soal, kunci tidak bocor) → submit semua benar = skor 100, esai 25 tampil.
+
+## Update — Revisi Bank Soal Tingkat B (Jun 2026)
+- Diimpor (admin import preview→commit, ganti total): B PPh OP, B KUP, B PPh Pot/Put, B PPN — masing-masing 100 PG + 25 esai, 0 issue.
+- Kunci revisi terverifikasi: OP15=B, KUP5=C, PotPut15=B, PotPut62=D, PPN1=D, PPN74=C.
+- PENDING: Catatan Telaah B mencakup 8 bank; file revisi Bea Meterai B, PBB-P5L B, PPh Badan B (kunci 38→B, 97→A), Akuntansi Perpajakan B (42→A) belum dikirim user.
