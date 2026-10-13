@@ -39,3 +39,11 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 - P1: User unggah ulang 5 file Tingkat A via 'Unggah Word' agar rapor per materi Tingkat A aktif
 - P1: Login peserta + akses berbayar (voucher manual atau Midtrans/Xendit)
 - P1: Deployment production + subdomain (mis. belajar.potput.id), link dari Blogger/Sitepad
+
+## Update — Revisi Bank Soal Tingkat A Batch 1 (Jun 2026)
+- Diimpor ulang via endpoint admin import (preview→commit), mengganti total soal: PPh Pot/Put (A), PPN & SPT PPN (A), PBB-P5L & Bea Meterai (A) — masing-masing 100 PG + 25 esai, 0 issue parser.
+- Kunci revisi sesuai Catatan Telaah terverifikasi: Pot/Put 35=C, 72=C; PPN 19=C, 24=B, 36=D.
+- File 06 Bea Meterai Tersendiri TIDAK diimpor (keputusan user; cukup file 05 gabungan). Tingkat A tetap 5 mapel.
+- PENDING: user akan mengirim file revisi PPh OP (A) & KUP (A) (catatan menyebut mis. PPh OP PG 7→D, KUP PG 9→D).
+- Catatan: durasi PPh OP (A) & PPh Pot/Put (A) masih 120 menit, lainnya 90 — menunggu keputusan user.
+- E2E API test: start (40 soal, kunci tidak bocor) → submit semua benar = skor 100, esai 25 tampil.
