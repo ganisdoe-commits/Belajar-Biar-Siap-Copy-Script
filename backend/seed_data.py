@@ -5,13 +5,13 @@ Akan diganti dengan soal asli melalui Panel Admin / impor.
 
 SUBJECTS = [
     {"code": "A1", "name": "PPh OP & SPT PPh OP", "short": "PPh OP", "level": "A",
-     "durationMin": 120, "color": "#4338CA", "order": 1,
+     "durationMin": 90, "color": "#4338CA", "order": 1,
      "desc": "Pajak Penghasilan Orang Pribadi dan Surat Pemberitahuan Tahunan PPh OP."},
     {"code": "A1", "name": "KUP, PPSP, dan PP", "short": "KUP", "level": "A",
      "durationMin": 90, "color": "#0891b2", "order": 2,
      "desc": "Ketentuan Umum & Tata Cara Perpajakan, Penagihan Pajak dengan Surat Paksa, Pengadilan Pajak."},
     {"code": "A2", "name": "PPh Pot/Put", "short": "Pot/Put", "level": "A",
-     "durationMin": 120, "color": "#7c3aed", "order": 3,
+     "durationMin": 90, "color": "#7c3aed", "order": 3,
      "desc": "Pajak Penghasilan Pemotongan dan Pemungutan (PPh 21, 22, 23, 26, 4(2))."},
     {"code": "A2", "name": "PPN & SPT PPN", "short": "PPN", "level": "A",
      "durationMin": 90, "color": "#059669", "order": 4,

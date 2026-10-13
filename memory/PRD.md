@@ -45,5 +45,5 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 - Kunci revisi sesuai Catatan Telaah terverifikasi: Pot/Put 35=C, 72=C; PPN 19=C, 24=B, 36=D.
 - File 06 Bea Meterai Tersendiri TIDAK diimpor (keputusan user; cukup file 05 gabungan). Tingkat A tetap 5 mapel.
 - DONE: revisi PPh OP (A) & KUP (A) diimpor (100 PG + 25 esai masing-masing); terverifikasi PPh OP no.7=D, KUP no.9=D, PPh OP no.74 kasus orang pribadi. Seluruh Tingkat A kini versi revisi Batch 1.
-- Catatan: durasi PPh OP (A) & PPh Pot/Put (A) masih 120 menit, lainnya 90 — menunggu keputusan user.
+- DONE: durasi PPh OP (A) & PPh Pot/Put (A) diseragamkan 90 menit (DB + seed_data.py); seluruh 15 mapel kini 90 menit.
 - E2E API test: start (40 soal, kunci tidak bocor) → submit semua benar = skor 100, esai 25 tampil.
