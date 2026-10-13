@@ -1,4 +1,4 @@
-# PRD — Belajar Biar Pintar (Simulator Ujian Kompetensi Pajak / USKP)
+# PRD — Belajar Biar Siap (Simulator Ujian Kompetensi Pajak / USKP)
 
 ## Problem statement
 Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik: 40 PG acak per sesi dari bank 100, timer per mata ujian, navigasi/ragu/catatan/kalkulator, skor dihitung backend (benar/40×100, lulus ≥60), kunci jawaban tersembunyi, mode esai terpisah, panel admin, impor bank soal Word, Tingkat A/B/C (tidak harus berurutan), kelak monetisasi + deployment production + custom domain.
@@ -52,3 +52,7 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 - Diimpor (admin import preview→commit, ganti total): B PPh OP, B KUP, B PPh Pot/Put, B PPN — masing-masing 100 PG + 25 esai, 0 issue.
 - Kunci revisi terverifikasi: OP15=B, KUP5=C, PotPut15=B, PotPut62=D, PPN1=D, PPN74=C.
 - DONE: sisa revisi B (Bea Meterai, PBB-P5L, PPh Badan, Akuntansi) diimpor 100+25 masing-masing; kunci PPhB38=B, PPhB97=A, AKT42=A terverifikasi. Seluruh 8 mapel Tingkat B kini versi revisi.
+
+## Update — Rebrand tagline (Jun 2026)
+- Nama aplikasi: "Belajar Biar Pintar" → "Belajar Biar Siap" (Navbar, Footer, Admin login/dashboard, backend API title, PROTOTYPE.md). Subjudul tetap "Ujian Kompetensi Pajak".
+- Hero beranda: "Sering Berlatih Biar Semakin Siap / Siap Untuk Maju… Siap Untuk Sukses" (menggantikan "Belajar Cerdas, Maju Bertahap"). data-testid="hero-tagline".

@@ -1,5 +1,5 @@
 """
-Data contoh (seed) untuk Belajar Biar Pintar.
+Data contoh (seed) untuk Belajar Biar Siap.
 Akan diganti dengan soal asli melalui Panel Admin / impor.
 """
 

@@ -1,4 +1,4 @@
-# Catatan Prototipe — Belajar Biar Pintar
+# Catatan Prototipe — Belajar Biar Siap
 
 **Aplikasi Pembelajaran Ujian Kompetensi Pajak (Simulasi CAT Tingkat A, B, C)**
 
@@ -15,7 +15,7 @@
 
 ## 1. Ringkasan Produk
 
-Belajar Biar Pintar adalah aplikasi web untuk berlatih menghadapi Ujian Kompetensi Pajak berbasis komputer (CAT). Alur dan tampilan layar ujiannya dibuat menyerupai **Panduan Umum dan Teknis Peserta Ujian Online UKP**, sehingga peserta terbiasa dengan:
+Belajar Biar Siap adalah aplikasi web untuk berlatih menghadapi Ujian Kompetensi Pajak berbasis komputer (CAT). Alur dan tampilan layar ujiannya dibuat menyerupai **Panduan Umum dan Teknis Peserta Ujian Online UKP**, sehingga peserta terbiasa dengan:
 
 - urutan pra-ujian (detail ujian, pakta integritas, kamera, token, panduan),
 - layar ujian 3 kolom (Ekstra Konten — Soal — Navigasi),

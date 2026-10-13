@@ -23,7 +23,7 @@ export default function Navbar() {
           </div>
           <div className="leading-tight">
             <span className="block text-[15px] font-extrabold tracking-tight text-indigo-950">
-              Belajar Biar Pintar
+              Belajar Biar Siap
             </span>
             <span className="block text-[10px] font-semibold uppercase tracking-wider text-amber-600">
               Ujian Kompetensi Pajak

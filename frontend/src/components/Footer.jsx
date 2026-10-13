@@ -13,7 +13,7 @@ export default function Footer() {
                 <Brain className="h-5 w-5" />
               </div>
               <span className="text-[15px] font-extrabold tracking-tight text-white">
-                Belajar Biar Pintar
+                Belajar Biar Siap
               </span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-indigo-300">
@@ -44,7 +44,7 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-bold text-white">Penafian</h4>
             <p data-testid="footer-disclaimer" className="mt-4 text-sm leading-relaxed text-indigo-300">
-              Belajar Biar Pintar adalah aplikasi simulasi latihan mandiri dan tidak berafiliasi dengan
+              Belajar Biar Siap adalah aplikasi simulasi latihan mandiri dan tidak berafiliasi dengan
               Kementerian Keuangan maupun penyelenggara ujian resmi. Hasil simulasi bukan jaminan kelulusan.
               Selalu ikuti panduan resmi terbaru dari penyelenggara.
             </p>
@@ -52,7 +52,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t border-indigo-900 pt-6 text-center text-xs text-indigo-400">
-          © {new Date().getFullYear()} Belajar Biar Pintar — Aplikasi Pembelajaran Ujian Kompetensi Pajak.
+          © {new Date().getFullYear()} Belajar Biar Siap — Aplikasi Pembelajaran Ujian Kompetensi Pajak.
         </div>
       </div>
     </footer>

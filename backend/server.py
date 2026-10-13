@@ -40,7 +40,7 @@ MAX_FAILED = 5
 LOCK_MINUTES = 15
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
-app = FastAPI(title="Belajar Biar Pintar API")
+app = FastAPI(title="Belajar Biar Siap API")
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -263,7 +263,7 @@ async def on_startup():
 # ---------------------------- Public routes ----------------------------
 @api_router.get("/")
 async def root():
-    return {"message": "Belajar Biar Pintar API", "status": "ok"}
+    return {"message": "Belajar Biar Siap API", "status": "ok"}
 
 
 async def _subject_qcount(sid: str) -> int:

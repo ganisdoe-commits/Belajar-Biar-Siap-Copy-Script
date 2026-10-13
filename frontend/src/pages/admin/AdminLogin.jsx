@@ -32,7 +32,7 @@ export default function AdminLogin() {
         <div className="flex items-center gap-2.5">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-indigo-950"><Brain className="h-5 w-5" /></div>
           <div>
-            <div className="text-sm font-extrabold text-white">Belajar Biar Pintar</div>
+            <div className="text-sm font-extrabold text-white">Belajar Biar Siap</div>
             <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">Panel Admin</div>
           </div>
         </div>

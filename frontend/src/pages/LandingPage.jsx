@@ -45,10 +45,11 @@ export default function LandingPage() {
             <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-100 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-700">
               <Sparkles className="h-3.5 w-3.5" /> Tingkat A · B · C
             </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-[1.1] tracking-tight text-indigo-950 sm:text-5xl lg:text-[3.3rem]">
-              Belajar Cerdas,{" "}
-              <span className="relative text-indigo-700">Maju Bertahap
-                <span className="absolute -bottom-1 left-0 h-1.5 w-full rounded-full bg-amber-400/70" />
+            <h1 data-testid="hero-tagline" className="mt-5 text-4xl font-extrabold leading-[1.15] tracking-tight text-indigo-950 sm:text-5xl lg:text-[3.1rem]">
+              Sering Berlatih Biar Semakin Siap
+              <span className="mt-3 block text-indigo-700">
+                <span className="whitespace-nowrap">Siap Untuk Maju…</span>{" "}
+                <span className="whitespace-nowrap underline decoration-amber-400/80 decoration-[6px] underline-offset-[10px]">Siap Untuk Sukses</span>
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
@@ -90,7 +91,7 @@ export default function LandingPage() {
 
           <div className="relative animate-fade-up" style={{ animationDelay: "0.15s" }}>
             <div className="relative overflow-hidden rounded-3xl border border-indigo-100 shadow-2xl shadow-indigo-900/10">
-              <img src={HERO_IMG} alt="Belajar Biar Pintar" className="h-[440px] w-full object-cover" />
+              <img src={HERO_IMG} alt="Belajar Biar Siap" className="h-[440px] w-full object-cover" />
             </div>
             <div className="absolute -bottom-5 -left-5 hidden rounded-2xl border border-indigo-50 bg-white p-4 shadow-xl sm:block">
               <div className="flex items-center gap-3">

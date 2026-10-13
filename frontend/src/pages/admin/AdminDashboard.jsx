@@ -48,7 +48,7 @@ export default function AdminDashboard() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-700 text-white"><Brain className="h-5 w-5" /></div>
           <div className="leading-tight">
             <div className="text-sm font-extrabold text-indigo-950">Panel Admin</div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Belajar Biar Pintar</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Belajar Biar Siap</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
