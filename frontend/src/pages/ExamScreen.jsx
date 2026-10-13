@@ -31,7 +31,7 @@ export default function ExamScreen() {
   const { subjectId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session, setAnswer, toggleFlag, setNotes, setSheet, syncSession, submitSession, candidate } = useExam();
+  const { session, setAnswer, toggleFlag, setNotes, setSheet, syncSession, submitSession, clearSession, candidate } = useExam();
   const [current, setCurrent] = useState(0);
   const [now, setNow] = useState(Date.now());
   const [tool, setTool] = useState(null);
@@ -58,13 +58,21 @@ export default function ExamScreen() {
       navigate("/selesai");
     } catch (e) {
       setSubmitting(false);
-      if (e?.response?.status === 409) { navigate("/dashboard"); return; }
+      if (e?.response?.status === 409) {
+        clearSession();
+        toast({ title: "Sesi sudah ditutup server", description: "Waktu dan masa toleransi telah habis; jawaban terakhir yang tersimpan sudah dinilai. Lihat di Riwayat/Rapor." });
+        navigate("/dashboard");
+        return;
+      }
       autoSubmitted.current = false;
       toast({ title: auto ? "Waktu habis — menunggu koneksi" : "Gagal mengirim jawaban", description: "Jawaban tetap tersimpan di perangkat. Periksa koneksi internet lalu coba lagi.", variant: "destructive" });
     }
-  }, [submitSession, navigate, toast]);
+  }, [submitSession, clearSession, navigate, toast]);
 
-  const sync = useCallback(() => syncSession().then(() => setOnline(true)).catch(() => setOnline(false)), [syncSession]);
+  const sync = useCallback(() => syncSession().then(() => setOnline(true)).catch((e) => {
+    if (e?.response?.status === 409) { if (!autoSubmitted.current) { autoSubmitted.current = true; doSubmit(true); } return; }
+    setOnline(false);
+  }), [syncSession, doSubmit]);
 
   useEffect(() => {
     const tick = setInterval(() => setNow(Date.now()), 1000);

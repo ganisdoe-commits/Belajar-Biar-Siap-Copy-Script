@@ -60,6 +60,11 @@ Beranda **tidak** memuat klaim angka pengguna/sesi, testimoni contoh, maupun inf
 
 **Simpan otomatis:** setiap perubahan jawaban langsung tersimpan di perangkat; setiap **1 menit** dikirim ke server. Bila koneksi putus, status berubah *offline* dan jawaban tetap aman di perangkat. Bila waktu habis, jawaban **otomatis terkirim**. Jawaban yang sudah terkirim **terkunci**.
 
+**Masa toleransi 2,5 menit (ditegakkan server):** batas waktu dihitung oleh server, bukan oleh browser.
+- Kiriman yang diterima server paling lambat **2,5 menit setelah waktu habis** (mis. karena koneksi terputus) tetap dinilai dengan jawaban lengkap dari perangkat.
+- Lewat dari 2,5 menit, server menolak simpan/kiriman baru dan hanya menilai **jawaban terakhir yang sudah tersimpan di server**.
+- Jika halaman ditutup dan tidak dibuka lagi, server **menyelesaikan dan menilai ujian secara otomatis** (saat peserta membuka dashboard/rapor atau admin membuka Hasil).
+
 **Lembar Kerja (ala Excel):** 10 kolom (A–J) × 30 baris. Rumus diawali `=`. Contoh: `=B3*5%`, `=SUM(B2:B6)`, `=ROUND(B5*2,5%;0)`. Fungsi: SUM, AVERAGE, MIN, MAX, COUNT, ROUND, ROUNDDOWN, ROUNDUP, ABS. Pemisah argumen `;`, desimal `,` (gaya Excel Indonesia). Isi lembar kerja tidak dinilai.
 
 **Kalkulator:** tetap disediakan sebagai alat bantu latihan. *Catatan: pada ujian sesungguhnya kalkulator fisik dan kertas buram dilarang; yang disediakan adalah tab Excel.*
@@ -136,7 +141,10 @@ Tingkat tidak harus ditempuh berurutan. Sisa 8 mata ujian Tingkat C akan ditamba
 
 ## 8. Keamanan & Perlindungan Konten
 
-- **Kunci jawaban tidak pernah dikirim ke browser** selama ujian; nilai dihitung di server.
+- **Kunci jawaban tidak pernah dikirim ke browser** selama ujian; nilai dihitung di server. Kiriman jawaban **wajib** memakai sesi ujian yang sah milik peserta tersebut; pembahasan hanya diberikan untuk 40 soal sesi itu setelah sesi ditutup.
+- Setiap peserta mendapat **kode rahasia** dari server saat masuk (tersimpan di browser). Sesi, kiriman, riwayat, dan rapor hanya dapat diakses dengan kode itu (perlindungan sementara sampai ada akun login + pembayaran).
+- Setiap sesi menyimpan **salinan soal & kunci** saat ujian dimulai, sehingga impor ulang bank soal tidak mengganggu ujian yang sedang berjalan.
+- Penutupan sesi bersifat **atomik**: jika tombol kirim tertekan dua kali atau ada dua kiriman bersamaan, hanya satu yang dicatat.
 - Password admin disimpan **terenkripsi (bcrypt)**; sesi admin berlaku 12 jam; mengganti password otomatis mengeluarkan sesi di perangkat lain.
 - Login admin dikunci **15 menit** setelah 5 kali salah.
 - Jawaban yang sudah dikirim dikunci server (tidak bisa dikirim/diubah ulang).
@@ -147,7 +155,7 @@ Tingkat tidak harus ditempuh berurutan. Sisa 8 mata ujian Tingkat C akan ditamba
 
 | Hal | Keterangan |
 |---|---|
-| Login peserta & pembayaran | Peserta masuk hanya dengan nama; belum ada akun, voucher, atau gateway pembayaran |
+| Login peserta & pembayaran | Peserta masuk dengan nama + kode rahasia otomatis per browser (bila data browser dihapus, riwayat lama tidak bisa dibuka lagi); belum ada akun, voucher, atau gateway pembayaran |
 | Production / domain | Masih di alamat *preview* — **jangan dibagikan untuk dijual**. Perlu deploy production + domain/subdomain (mis. `belajar.potput.id`) |
 | Pengawasan (proctoring) | Tidak ada Safe Exam Browser, Zoom, atau perekaman. Aplikasi adalah simulasi |
 | Token | Token latihan tetap (`1234`); belum ada token per sesi/jadwal serentak |
@@ -212,7 +220,8 @@ FastAPI (port 8001, supervisor)  ──►  MongoDB (MONGO_URL, DB_NAME)
 | `subjects` | id, level (A/B/C), code, short, name, desc, color, order, durationMin, examCount |
 | `questions` | id, subject_id, number, materi, question, options[{key,text}], answer, pembahasan |
 | `essays` | id, subject_id, number, question, model_answer |
-| `exam_sessions` | id, subject_id, candidate, question_ids, answers, flags, status, started_at, deadline, saved_at |
+| `candidates` | id, name, secret_hash (SHA-256), created_at |
+| `exam_sessions` | id, subject_id, candidate, question_ids, questions (salinan soal+kunci), answers, flags, status (in_progress/scoring/submitted), started_at, deadline, saved_at, basis |
 | `results` | id, candidate, subject_id/name, level, total, correct, answered, unanswered, score, passed, materi_stats[], date |
 | `regulations` | id, title, filename, kind (pdf/excel), content_type, size, storage_path, subject_ids[], order, is_deleted |
 | `admin_users` | username, password_hash (bcrypt), token_version, password_changed_at |
@@ -226,12 +235,13 @@ FastAPI (port 8001, supervisor)  ──►  MongoDB (MONGO_URL, DB_NAME)
 | Metode | Rute | Fungsi |
 |---|---|---|
 | GET | `/api/subjects`, `/api/subjects/{id}` | Daftar & detail mata ujian |
-| POST | `/api/exam/start` | Mulai sesi: 40 soal acak (tanpa kunci), deadline, waktu server |
-| POST | `/api/exam/session/{id}/save` | Simpan otomatis jawaban & tanda |
-| POST | `/api/exam/submit` | Kirim & nilai (409 bila sudah terkirim) |
+| POST | `/api/candidates` | Daftarkan peserta → id + kode rahasia (header `X-Candidate-Id`, `X-Candidate-Secret`) |
+| POST | `/api/exam/start` | *(peserta)* Mulai sesi: 40 soal acak (tanpa kunci) + salinan soal/kunci di server, deadline, `grace_sec`=150 |
+| POST | `/api/exam/session/{id}/save` | *(pemilik sesi)* Simpan otomatis; ditolak 409 setelah deadline + 150 dtk |
+| POST | `/api/exam/submit` | *(pemilik sesi, wajib `session_id`)* Kirim & nilai secara atomik; 409 bila sudah tertutup |
 | GET | `/api/subjects/{id}/essays` | Soal esai + jawaban model |
-| GET | `/api/results/{candidate_id}` | Riwayat nilai |
-| GET | `/api/report/{candidate_id}` | Rapor per tingkat, mata ujian, materi |
+| GET | `/api/results/{candidate_id}` | *(peserta ybs.)* Riwayat nilai; menutup otomatis sesi kedaluwarsa |
+| GET | `/api/report/{candidate_id}` | *(peserta ybs.)* Rapor per tingkat, mata ujian, materi |
 | GET | `/api/subjects/{id}/regulations` | Daftar peraturan per mata ujian |
 | GET | `/api/regulations/{id}/file` | Isi file (inline) |
 | GET | `/api/client-info` | Alamat IP (untuk Detail Ujian) |

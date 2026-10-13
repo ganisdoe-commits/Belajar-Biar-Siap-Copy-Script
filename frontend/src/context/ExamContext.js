@@ -22,7 +22,10 @@ const readJSON = (key) => {
 };
 
 export const ExamProvider = ({ children }) => {
-  const [candidate, setCandidate] = useState(() => readJSON(STORAGE_KEY));
+  const [candidate, setCandidate] = useState(() => {
+    const c = readJSON(STORAGE_KEY);
+    return c?.secret ? c : null;
+  });
   const [session, setSessionState] = useState(() => readJSON(SESSION_KEY));
   const sessionRef = useRef(session);
   const setSession = useCallback((val) => {
@@ -39,9 +42,11 @@ export const ExamProvider = ({ children }) => {
     else localStorage.removeItem(SESSION_KEY);
   }, [session]);
 
-  const loginCandidate = useCallback((data) => {
-    setCandidate(data);
+  const loginCandidate = useCallback(async (name) => {
+    const data = await api.registerCandidate(name);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setCandidate(data);
+    return data;
   }, []);
 
   const logoutCandidate = useCallback(() => {
@@ -51,7 +56,7 @@ export const ExamProvider = ({ children }) => {
   }, [setSession]);
 
   const startSession = useCallback(async (subject) => {
-    const data = await api.startExam({ subject_id: subject.id, candidate: candidate || { name: "Peserta", id: "" } });
+    const data = await api.startExam({ subject_id: subject.id });
     const offset = new Date(data.server_time).getTime() - Date.now();
     const newSession = {
       sessionId: data.session_id,
@@ -64,12 +69,13 @@ export const ExamProvider = ({ children }) => {
       durationSec: data.duration_sec,
       startedAt: data.started_at,
       deadlineMs: new Date(data.deadline).getTime() - offset,
+      graceSec: data.grace_sec,
       savedAt: null,
       submitted: false,
     };
     setSession(newSession);
     return newSession;
-  }, [candidate, setSession]);
+  }, [setSession]);
 
   const patch = useCallback((fn) => setSession((s) => (s && !s.submitted ? fn(s) : s)), [setSession]);
   const setAnswer = useCallback((qid, key) => patch((s) => ({ ...s, answers: { ...s.answers, [qid]: key } })), [patch]);
@@ -93,16 +99,10 @@ export const ExamProvider = ({ children }) => {
   const submitSession = useCallback(async () => {
     const s = sessionRef.current;
     if (!s || s.submitted) return s?.result || null;
-    const data = await api.submitExam({
-      subject_id: s.subject.id,
-      session_id: s.sessionId,
-      candidate: candidate || { name: "Peserta", id: "" },
-      answers: s.answers,
-      question_ids: s.questions.map((q) => q.id),
-    });
+    const data = await api.submitExam({ session_id: s.sessionId, answers: s.answers });
     setSession({ ...s, submitted: true, finishedAt: data.result.date, result: data.result, review: data.review });
     return data.result;
-  }, [candidate, setSession]);
+  }, [setSession]);
 
   const clearSession = useCallback(() => setSession(null), [setSession]);
 

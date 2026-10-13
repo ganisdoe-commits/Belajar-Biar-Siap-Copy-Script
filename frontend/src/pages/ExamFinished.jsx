@@ -42,6 +42,11 @@ export default function ExamFinished() {
             ))}
           </tbody>
         </table>
+        {r.basis === "server_saved" && (
+          <p data-testid="late-submit-note" className="mt-5 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
+            Kiriman diterima setelah masa toleransi 2,5 menit berakhir, sehingga yang dinilai adalah jawaban terakhir yang sempat tersimpan di server.
+          </p>
+        )}
         <p className="mt-5 rounded-lg bg-indigo-950/60 p-3 text-xs text-indigo-300">
           Pada ujian sesungguhnya, nilai baru dapat dilihat setelah sesi ujian berakhir dan hasil resmi diumumkan kemudian. Di simulasi ini Anda dapat langsung melihat nilai dan pembahasan.
         </p>

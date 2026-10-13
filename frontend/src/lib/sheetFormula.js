@@ -31,6 +31,16 @@ function tokenize(src) {
   return out;
 }
 
+// Gaya Excel: pembulatan berdasarkan nilai absolut (menjauhi/menuju nol), aman dari galat floating point.
+function excelRound([x = 0, n = 0], fn) {
+  const digits = Math.trunc(n);
+  const p = 10 ** Math.abs(digits);
+  const abs = Math.abs(x);
+  const scaled = Number((digits >= 0 ? abs * p : abs / p).toPrecision(15));
+  const r = fn(scaled);
+  return Math.sign(x) * (digits >= 0 ? r / p : r * p);
+}
+
 const FUNCS = {
   SUM: (xs) => xs.reduce((a, b) => a + b, 0),
   AVERAGE: (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : ERR("#DIV/0")),
@@ -38,9 +48,9 @@ const FUNCS = {
   MAX: (xs) => (xs.length ? Math.max(...xs) : 0),
   COUNT: (xs) => xs.length,
   ABS: (xs) => Math.abs(xs[0] ?? 0),
-  ROUND: (xs) => { const p = 10 ** (xs[1] ?? 0); return Math.round((xs[0] ?? 0) * p) / p; },
-  ROUNDDOWN: (xs) => { const p = 10 ** (xs[1] ?? 0); return Math.trunc((xs[0] ?? 0) * p) / p; },
-  ROUNDUP: (xs) => { const p = 10 ** (xs[1] ?? 0); const v = (xs[0] ?? 0) * p; return (v < 0 ? Math.floor(v) : Math.ceil(v)) / p; },
+  ROUND: (xs) => excelRound(xs, Math.round),
+  ROUNDDOWN: (xs) => excelRound(xs, Math.floor),
+  ROUNDUP: (xs) => excelRound(xs, Math.ceil),
 };
 
 function expandRange(a, b) {

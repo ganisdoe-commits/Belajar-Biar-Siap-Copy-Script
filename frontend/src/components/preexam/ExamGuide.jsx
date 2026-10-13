@@ -13,6 +13,8 @@ export default function ExamGuide({ subject, starting, onContinue, onBack }) {
     "Tersedia Note, Lembar Kerja (seperti Excel), dan Kalkulator. Pada ujian sesungguhnya kalkulator fisik dan kertas buram dilarang; yang disediakan adalah tab Excel.",
     "Jawaban tersimpan otomatis di perangkat dan dikirim ke server setiap 1 menit. Jika halaman tertutup atau di-refresh, ujian dapat dilanjutkan.",
     "Jika waktu habis, jawaban otomatis terkirim dan layar ujian tertutup.",
+    "Masa toleransi 2,5 menit: bila koneksi terputus tepat saat waktu habis, kiriman yang diterima server paling lambat 2,5 menit setelah waktu habis tetap dinilai utuh. Lewat dari itu, server menutup ujian dan hanya menilai jawaban terakhir yang sudah tersimpan di server (simpan otomatis tiap 1 menit).",
+    "Jika halaman ditutup dan tidak dibuka lagi, server menyelesaikan dan menilai ujian Anda secara otomatis dari jawaban yang sudah tersimpan.",
     "Tekan KIRIM & SELESAI hanya bila seluruh soal sudah dikerjakan. Jawaban yang terkirim terkunci dan tidak dapat diubah.",
   ];
   return (

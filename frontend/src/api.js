@@ -14,6 +14,20 @@ const authHeader = () => {
   return t ? { Authorization: `Bearer ${t}` } : {};
 };
 
+api.interceptors.request.use((config) => {
+  try {
+    const c = JSON.parse(localStorage.getItem("bbp_candidate") || "null");
+    if (c?.id && c?.secret && !String(config.url || "").startsWith("/admin")) {
+      config.headers = { ...config.headers, "X-Candidate-Id": c.id, "X-Candidate-Secret": c.secret };
+    }
+  } catch {
+    /* abaikan data lokal yang rusak */
+  }
+  return config;
+});
+
+export const registerCandidate = (name) => api.post("/candidates", { name }).then((r) => r.data);
+
 api.interceptors.response.use(
   (r) => r,
   (err) => {

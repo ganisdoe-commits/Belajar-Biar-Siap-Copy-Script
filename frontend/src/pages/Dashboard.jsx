@@ -24,10 +24,20 @@ export default function Dashboard() {
     }
   }, [candidate]);
 
-  const handleLogin = (e) => {
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
-    loginCandidate({ name: name.trim(), id: "BBP-" + Math.floor(100000 + Math.random() * 900000) });
+    try {
+      setLoggingIn(true);
+      setLoginError("");
+      await loginCandidate(name.trim());
+    } catch {
+      setLoginError("Gagal masuk. Server mungkin sedang tidak aktif — coba lagi sebentar.");
+    } finally {
+      setLoggingIn(false);
+    }
   };
 
   if (!candidate) {
@@ -48,7 +58,8 @@ export default function Dashboard() {
                 <Label htmlFor="name" className="text-sm font-semibold text-slate-700">Nama Peserta</Label>
                 <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="mis. Budi Santoso" className="mt-1.5 h-11" />
               </div>
-              <Button type="submit" className="h-11 w-full bg-indigo-700 font-bold hover:bg-indigo-900">
+              {loginError && <p data-testid="login-error" className="text-sm font-semibold text-red-600">{loginError}</p>}
+              <Button data-testid="candidate-login-button" type="submit" disabled={loggingIn} className="h-11 w-full bg-indigo-700 font-bold hover:bg-indigo-900">
                 Masuk <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </form>

@@ -17,6 +17,9 @@ from typing import List, Optional, Dict  # noqa: E402
 import uuid  # noqa: E402
 from datetime import datetime, timezone, timedelta  # noqa: E402
 import random  # noqa: E402
+import hashlib  # noqa: E402
+import hmac  # noqa: E402
+import secrets  # noqa: E402
 import bcrypt  # noqa: E402
 import jwt  # noqa: E402
 
@@ -97,16 +100,16 @@ class Candidate(BaseModel):
 
 
 class ExamSubmit(BaseModel):
-    subject_id: str
-    candidate: Candidate
+    session_id: str
     answers: Dict[str, str] = {}  # {question_id: selected_key}
-    question_ids: List[str] = []  # urutan soal yang disajikan pada sesi ini
-    session_id: Optional[str] = None
 
 
 class ExamStart(BaseModel):
     subject_id: str
-    candidate: Candidate
+
+
+class CandidateIn(BaseModel):
+    name: str
 
 
 class ExamSave(BaseModel):
@@ -246,6 +249,8 @@ async def on_startup():
         await db.upload_chunks.create_index("created_at", expireAfterSeconds=86400)
         await db.upload_chunks.create_index([("upload_id", 1), ("index", 1)])
         await db.exam_sessions.create_index("id", unique=True)
+        await db.exam_sessions.create_index([("status", 1), ("deadline", 1)])
+        await db.candidates.create_index("id", unique=True)
     except Exception as e:
         logger.error(f"Gagal seeding: {e}")
     try:
@@ -317,12 +322,13 @@ async def build_exam(sid: str) -> dict:
         "subject": s,
         "duration_sec": int(s.get("durationMin", 90)) * 60,
         "questions": questions,
-    }
+    }, [clean(q) for q in chosen]
 
 
 @api_router.get("/subjects/{sid}/exam")
 async def get_exam(sid: str):
-    return await build_exam(sid)
+    data, _ = await build_exam(sid)
+    return data
 
 
 @api_router.get("/client-info")
@@ -330,108 +336,152 @@ async def client_info(request: Request):
     return {"ip": client_ip(request)}
 
 
-@api_router.post("/exam/start")
-async def start_exam(payload: ExamStart):
-    data = await build_exam(payload.subject_id)
-    now = datetime.now(timezone.utc)
-    sess = {
-        "id": str(uuid.uuid4()), "subject_id": payload.subject_id, "candidate": payload.candidate.dict(),
-        "question_ids": [q["id"] for q in data["questions"]], "answers": {}, "flags": {},
-        "status": "in_progress", "started_at": now.isoformat(),
-        "deadline": (now + timedelta(seconds=data["duration_sec"])).isoformat(), "saved_at": None,
-    }
-    await db.exam_sessions.insert_one(dict(sess))
-    return {**data, "session_id": sess["id"], "started_at": sess["started_at"],
-            "deadline": sess["deadline"], "server_time": now.isoformat()}
+GRACE_SECONDS = 150  # toleransi 2,5 menit setelah waktu habis (gangguan koneksi)
 
 
-@api_router.post("/exam/session/{session_id}/save")
-async def save_exam(session_id: str, payload: ExamSave):
-    sess = await db.exam_sessions.find_one({"id": session_id})
-    if not sess:
-        raise HTTPException(404, "Sesi ujian tidak ditemukan")
-    if sess["status"] != "in_progress":
-        raise HTTPException(409, "Jawaban sudah terkirim dan terkunci")
-    valid = set(sess["question_ids"])
-    answers = {k: v for k, v in payload.answers.items() if k in valid and v in ("A", "B", "C", "D")}
-    flags = {k: True for k, v in payload.flags.items() if k in valid and v}
-    saved_at = datetime.now(timezone.utc).isoformat()
-    await db.exam_sessions.update_one({"id": session_id}, {"$set": {"answers": answers, "flags": flags, "saved_at": saved_at}})
-    return {"ok": True, "saved_at": saved_at, "answered": len(answers)}
+def _hash_secret(secret: str) -> str:
+    return hashlib.sha256(secret.encode("utf-8")).hexdigest()
 
 
-@api_router.post("/exam/submit")
-async def submit_exam(payload: ExamSubmit):
-    s = await db.subjects.find_one({"id": payload.subject_id})
-    if not s:
-        raise HTTPException(404, "Mata ujian tidak ditemukan")
-    s = clean(s)
-    sess = None
-    if payload.session_id:
-        sess = await db.exam_sessions.find_one({"id": payload.session_id})
-        if not sess or sess["subject_id"] != payload.subject_id:
-            raise HTTPException(404, "Sesi ujian tidak ditemukan")
-        if sess["status"] != "in_progress":
-            raise HTTPException(409, "Jawaban sudah terkirim dan terkunci")
-        payload.question_ids = sess["question_ids"]
-    if payload.question_ids:
-        found = await db.questions.find(
-            {"subject_id": payload.subject_id, "id": {"$in": payload.question_ids}}
-        ).to_list(2000)
-        qmap = {clean(q)["id"]: q for q in found}
-        qs = [qmap[qid] for qid in payload.question_ids if qid in qmap]
-    else:
-        qs = await db.questions.find({"subject_id": payload.subject_id}).sort("number", 1).to_list(2000)
-    total = len(qs)
-    correct = 0
-    answered = 0
-    review = []
-    materi_map = {}
-    for i, q in enumerate(qs, start=1):
-        q = clean(q)
-        selected = payload.answers.get(q["id"])
+async def require_candidate(x_candidate_id: Optional[str] = Header(None), x_candidate_secret: Optional[str] = Header(None)) -> dict:
+    if not x_candidate_id or not x_candidate_secret:
+        raise HTTPException(401, "Sesi peserta tidak valid, silakan masuk kembali")
+    cand = await db.candidates.find_one({"id": x_candidate_id})
+    if not cand or not hmac.compare_digest(cand["secret_hash"], _hash_secret(x_candidate_secret)):
+        raise HTTPException(401, "Sesi peserta tidak valid, silakan masuk kembali")
+    return {"id": cand["id"], "name": cand["name"]}
+
+
+@api_router.post("/candidates")
+async def register_candidate(payload: CandidateIn):
+    name = payload.name.strip()
+    if not name or len(name) > 80:
+        raise HTTPException(400, "Nama peserta wajib diisi (maks. 80 karakter)")
+    cid = "BBP-" + secrets.token_hex(4).upper()
+    secret = secrets.token_urlsafe(32)
+    await db.candidates.insert_one({"id": cid, "name": name, "secret_hash": _hash_secret(secret),
+                                    "created_at": datetime.now(timezone.utc).isoformat()})
+    return {"id": cid, "name": name, "secret": secret}
+
+
+def _score(sess: dict, subject: dict, answers: Dict[str, str]) -> tuple:
+    correct = answered = 0
+    review, materi_map = [], {}
+    for i, q in enumerate(sess["questions"], start=1):
+        selected = answers.get(q["id"])
         if selected:
             answered += 1
         is_correct = selected == q["answer"]
-        if is_correct:
-            correct += 1
+        correct += int(is_correct)
         if q.get("materi"):
             ms = materi_map.setdefault(q["materi"], {"materi": q["materi"], "correct": 0, "total": 0})
             ms["total"] += 1
             ms["correct"] += int(is_correct)
-        review.append({
-            "id": q["id"],
-            "number": i,
-            "question": q["question"],
-            "options": q["options"],
-            "answer": q["answer"],
-            "selected": selected,
-            "is_correct": is_correct,
-            "pembahasan": q.get("pembahasan", ""),
-        })
+        review.append({"id": q["id"], "number": i, "question": q["question"], "options": q["options"],
+                       "answer": q["answer"], "selected": selected, "is_correct": is_correct,
+                       "pembahasan": q.get("pembahasan", "")})
+    total = len(sess["questions"])
     score = round((correct / total) * 100, 2) if total else 0
-    passed = score >= 60
     result = {
-        "id": str(uuid.uuid4()),
-        "candidate_name": payload.candidate.name,
-        "candidate_id": payload.candidate.id,
-        "subject_id": payload.subject_id,
-        "subject_name": s["name"],
-        "level": s.get("level", "A"),
-        "total": total,
-        "correct": correct,
-        "wrong": answered - correct,
-        "unanswered": total - answered,
-        "score": score,
-        "passed": passed,
-        "materi_stats": list(materi_map.values()),
-        "date": datetime.now(timezone.utc).isoformat(),
+        "id": str(uuid.uuid4()), "session_id": sess["id"],
+        "candidate_name": sess["candidate"]["name"], "candidate_id": sess["candidate"]["id"],
+        "subject_id": sess["subject_id"], "subject_name": subject.get("name", sess.get("subject_name", "")),
+        "level": subject.get("level", "A"), "total": total, "correct": correct,
+        "wrong": answered - correct, "unanswered": total - answered, "score": score, "passed": score >= 60,
+        "materi_stats": list(materi_map.values()), "date": datetime.now(timezone.utc).isoformat(),
     }
-    await db.results.insert_one(dict(result))
-    result.pop("_id", None)
-    if sess:
-        await db.exam_sessions.update_one({"id": sess["id"]}, {"$set": {
-            "status": "submitted", "answers": payload.answers, "submitted_at": result["date"], "result_id": result["id"]}})
+    return result, review
+
+
+async def _close_session(sess_id: str, answers_from_client: Optional[Dict[str, str]], auto: bool = False):
+    # Klaim atomik: hanya satu permintaan yang berhasil mengubah status in_progress -> scoring.
+    sess = await db.exam_sessions.find_one_and_update(
+        {"id": sess_id, "status": "in_progress"}, {"$set": {"status": "scoring"}}, return_document=True)
+    if not sess:
+        return None
+    try:
+        now = datetime.now(timezone.utc)
+        in_time = now <= datetime.fromisoformat(sess["deadline"]) + timedelta(seconds=GRACE_SECONDS)
+        valid = set(sess["question_ids"])
+        if answers_from_client is not None and in_time:
+            answers = {k: v for k, v in answers_from_client.items() if k in valid and v in ("A", "B", "C", "D")}
+            basis = "client"
+        else:
+            answers = sess.get("answers", {})
+            basis = "auto" if auto else "server_saved"
+        subject = clean(await db.subjects.find_one({"id": sess["subject_id"]}) or {})
+        result, review = _score(sess, subject, answers)
+        result["basis"] = basis
+        await db.results.insert_one(dict(result))
+        result.pop("_id", None)
+        await db.exam_sessions.update_one({"id": sess_id}, {"$set": {
+            "status": "submitted", "answers": answers, "submitted_at": result["date"], "result_id": result["id"],
+            "basis": basis}})
+        return result, review
+    except Exception:
+        await db.exam_sessions.update_one({"id": sess_id, "status": "scoring"}, {"$set": {"status": "in_progress"}})
+        raise
+
+
+async def finalize_expired(candidate_id: Optional[str] = None):
+    limit = (datetime.now(timezone.utc) - timedelta(seconds=GRACE_SECONDS)).isoformat()
+    q = {"status": "in_progress", "deadline": {"$lt": limit}}
+    if candidate_id:
+        q["candidate.id"] = candidate_id
+    for sess in await db.exam_sessions.find(q, {"id": 1}).to_list(500):
+        await _close_session(sess["id"], None, auto=True)
+
+
+@api_router.post("/exam/start")
+async def start_exam(payload: ExamStart, cand: dict = Depends(require_candidate)):
+    await finalize_expired(cand["id"])
+    data, full = await build_exam(payload.subject_id)
+    now = datetime.now(timezone.utc)
+    snapshot = [{"id": q["id"], "question": q["question"], "options": q["options"], "answer": q["answer"],
+                 "pembahasan": q.get("pembahasan", ""), "materi": q.get("materi", "")} for q in full]
+    sess = {
+        "id": str(uuid.uuid4()), "subject_id": payload.subject_id, "subject_name": data["subject"]["name"],
+        "candidate": cand, "question_ids": [q["id"] for q in full], "questions": snapshot,
+        "answers": {}, "flags": {}, "status": "in_progress", "started_at": now.isoformat(),
+        "deadline": (now + timedelta(seconds=data["duration_sec"])).isoformat(), "saved_at": None,
+    }
+    await db.exam_sessions.insert_one(dict(sess))
+    return {**data, "session_id": sess["id"], "started_at": sess["started_at"], "deadline": sess["deadline"],
+            "server_time": now.isoformat(), "grace_sec": GRACE_SECONDS}
+
+
+async def _own_session(session_id: str, cand: dict) -> dict:
+    sess = await db.exam_sessions.find_one({"id": session_id}, {"questions": 0})
+    if not sess or sess["candidate"]["id"] != cand["id"]:
+        raise HTTPException(404, "Sesi ujian tidak ditemukan")
+    return sess
+
+
+@api_router.post("/exam/session/{session_id}/save")
+async def save_exam(session_id: str, payload: ExamSave, cand: dict = Depends(require_candidate)):
+    sess = await _own_session(session_id, cand)
+    if sess["status"] != "in_progress":
+        raise HTTPException(409, "Jawaban sudah terkirim dan terkunci")
+    if datetime.now(timezone.utc) > datetime.fromisoformat(sess["deadline"]) + timedelta(seconds=GRACE_SECONDS):
+        raise HTTPException(409, "Waktu ujian dan masa toleransi telah habis")
+    valid = set(sess["question_ids"])
+    answers = {k: v for k, v in payload.answers.items() if k in valid and v in ("A", "B", "C", "D")}
+    flags = {k: True for k, v in payload.flags.items() if k in valid and v}
+    saved_at = datetime.now(timezone.utc).isoformat()
+    await db.exam_sessions.update_one({"id": session_id, "status": "in_progress"},
+                                      {"$set": {"answers": answers, "flags": flags, "saved_at": saved_at}})
+    return {"ok": True, "saved_at": saved_at, "answered": len(answers)}
+
+
+@api_router.post("/exam/submit")
+async def submit_exam(payload: ExamSubmit, cand: dict = Depends(require_candidate)):
+    sess = await _own_session(payload.session_id, cand)
+    if sess["status"] != "in_progress":
+        raise HTTPException(409, "Jawaban sudah terkirim dan terkunci")
+    closed = await _close_session(sess["id"], payload.answers)
+    if not closed:
+        raise HTTPException(409, "Jawaban sudah terkirim dan terkunci")
+    result, review = closed
     return {"result": result, "review": review}
 
 
@@ -441,8 +491,15 @@ async def get_essays(sid: str):
     return [clean(e) for e in es]
 
 
+async def _own_candidate(candidate_id: str, cand: dict):
+    if candidate_id != cand["id"]:
+        raise HTTPException(403, "Tidak diizinkan melihat data peserta lain")
+    await finalize_expired(candidate_id)
+
+
 @api_router.get("/results/{candidate_id}")
-async def get_results(candidate_id: str):
+async def get_results(candidate_id: str, cand: dict = Depends(require_candidate)):
+    await _own_candidate(candidate_id, cand)
     rs = await db.results.find({"candidate_id": candidate_id}).sort("date", -1).to_list(50)
     return [clean(r) for r in rs]
 
@@ -453,7 +510,8 @@ def _materi_list(agg: dict) -> list:
 
 
 @api_router.get("/report/{candidate_id}")
-async def get_report(candidate_id: str):
+async def get_report(candidate_id: str, cand: dict = Depends(require_candidate)):
+    await _own_candidate(candidate_id, cand)
     rs = await db.results.find({"candidate_id": candidate_id}).sort("date", 1).to_list(2000)
     subs = {s["id"]: clean(s) for s in await db.subjects.find().to_list(500)}
     per = {}
@@ -764,6 +822,7 @@ async def bulk_essays(payload: BulkEssays, _: bool = Depends(require_admin)):
 
 @api_router.get("/admin/results")
 async def admin_results(_: bool = Depends(require_admin)):
+    await finalize_expired()
     rs = await db.results.find().sort("date", -1).to_list(500)
     return [clean(r) for r in rs]
 
