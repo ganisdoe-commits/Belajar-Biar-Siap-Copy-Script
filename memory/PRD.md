@@ -51,4 +51,4 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 ## Update — Revisi Bank Soal Tingkat B (Jun 2026)
 - Diimpor (admin import preview→commit, ganti total): B PPh OP, B KUP, B PPh Pot/Put, B PPN — masing-masing 100 PG + 25 esai, 0 issue.
 - Kunci revisi terverifikasi: OP15=B, KUP5=C, PotPut15=B, PotPut62=D, PPN1=D, PPN74=C.
-- PENDING: Catatan Telaah B mencakup 8 bank; file revisi Bea Meterai B, PBB-P5L B, PPh Badan B (kunci 38→B, 97→A), Akuntansi Perpajakan B (42→A) belum dikirim user.
+- DONE: sisa revisi B (Bea Meterai, PBB-P5L, PPh Badan, Akuntansi) diimpor 100+25 masing-masing; kunci PPhB38=B, PPhB97=A, AKT42=A terverifikasi. Seluruh 8 mapel Tingkat B kini versi revisi.
