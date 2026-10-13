@@ -27,6 +27,8 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 
 - 2026-06: Catatan Prototipe markdown (/app/backend/docs/PROTOTYPE.md; Bagian I panduan pemilik, Bagian II ringkasan teknis) + tab Admin 'Dokumentasi' (render react-markdown+remark-gfm, unduh .md, cetak/PDF), GET /api/admin/docs/prototype (admin). E2E readiness iteration_4: semua alur A/B/C, esai, admin, mobile lulus. Fixture tes c_kup.docx di backend/tests/fixtures
 
+- 2026-06: Fix: saat server preview tidur, dashboard/esai dulu tampil 'segera hadir' (seolah soal hilang). Kini useSubjects() retry 3x lalu tampil 'Server sedang tidak aktif' + Coba Lagi. Data aman (1500 PG, 375 esai, 8 peraturan). iteration_5 lulus
+
 ## Backlog
 - P0: User ganti password admin lewat menu 'Ganti Password' sebelum production
 - P0: Sisa Tingkat C (8 mata ujian lagi) — user akan upload bertahap

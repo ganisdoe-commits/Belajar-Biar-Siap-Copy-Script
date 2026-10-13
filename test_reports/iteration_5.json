@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only retest of subject-loading error handling. Verified: (1) /dashboard & /esai load subjects with correct level counts A=5, B=8, C=2 and show subject-grid/essay-subject-grid; (2) Simulated backend outage via page.route abort on **/api/subjects — after ~6s the retry loop finishes and server-error-state (NOT level-empty-state 'segera hadir') is shown on both /dashboard and /esai, with the server-retry-button visible; (3) After unroute, clicking server-retry-button reloads subjects correctly (tab counts restored to 5/8/2, server-error cleared, grid rendered); (4) Starting exam on first Tingkat A subject through pre-exam flow (integrity-agree-checkbox, token 1234, start-exam-button, guide-continue-button) renders the exam with 'Soal No. 1 / 40' and the Ekstra Konten panel listing 'SDSN UU PAJAK 2023', 'LAMPIRAN TARIF PP 58/2023', 'FORMULIR SPT TAHUNAN PPH ORANG PRIBADI 2025'; (5) Admin /admin login with admin123 → Peraturan tab shows exactly 8 stored documents (8 regulation-row-* testids / 8 Lihat buttons).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "useSubjects retry window is ~6s (3×2s). Fine for sleeping preview backend, but if real cold-start exceeds 6s users will see server-error-state. Consider exponential backoff or background re-poll after error.",
+    "ServerError button only reloads subjects, not getResults(history). Minor; history silently stays empty on first-failure retry."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
+  "test_credentials": "Admin password admin123; candidate login any name; pre-exam token 1234. From /app/memory/test_credentials.md.",
+  "seed_data_creation": "None. One candidate 'TEST_Agent' saved only in localStorage of ephemeral browser context; one exam session was started but not submitted (may leave an in-progress exam_sessions row — negligible, not in results).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Fix validated: outage handling on /dashboard & /esai works and recovers via retry. Peraturan tab = 8 docs. Exam flow + Ekstra Konten regulations render. Previous full E2E in iteration_4.json still applies for untouched flows.",
+  "rca of the issue": "User's original report ('questions and regulations missing, Tingkat A segera hadir') was caused by the Emergent preview backend being asleep → GET /api/subjects failed and the UI treated the empty array as 'no subjects for this level' (LevelEmpty 'segera hadir'). Fix in LevelTabs.jsx introduces useSubjects() with 3 retries (2s apart) and a dedicated ServerError (server-error-state + server-retry-button) wired into Dashboard.jsx and EssaySelect.jsx. Retest confirms correct differentiation between network failure and genuinely-empty level."
+}
