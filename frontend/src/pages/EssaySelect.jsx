@@ -3,19 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { PenLine, ArrowRight, FileText, Loader2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/button";
-import { getSubjects } from "../api";
-import { LevelTabs, LevelEmpty, useLevel } from "../components/LevelTabs";
+import { LevelTabs, LevelEmpty, useLevel, useSubjects, ServerError } from "../components/LevelTabs";
 
 export default function EssaySelect() {
   const navigate = useNavigate();
-  const [subjects, setSubjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { subjects, loading, failed, reload } = useSubjects();
   const [level, setLevel] = useLevel();
   const shown = subjects.filter((s) => (s.level || "A") === level);
-
-  useEffect(() => {
-    getSubjects().then((d) => setSubjects(d)).catch(() => setSubjects([])).finally(() => setLoading(false));
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#FFFEFB]">
@@ -35,6 +29,8 @@ export default function EssaySelect() {
 
         {loading ? (
           <div className="mt-10 flex items-center justify-center gap-2 text-slate-500"><Loader2 className="h-5 w-5 animate-spin" /> Memuat...</div>
+        ) : failed ? (
+          <ServerError onRetry={reload} />
         ) : shown.length === 0 ? (
           <LevelEmpty level={level} />
         ) : (

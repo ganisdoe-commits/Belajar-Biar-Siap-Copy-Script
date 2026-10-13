@@ -6,25 +6,17 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useExam } from "../context/ExamContext";
-import { getSubjects, getResults } from "../api";
-import { LevelTabs, LevelEmpty, useLevel } from "../components/LevelTabs";
+import { getResults } from "../api";
+import { LevelTabs, LevelEmpty, useLevel, useSubjects, ServerError } from "../components/LevelTabs";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { candidate, loginCandidate, logoutCandidate } = useExam();
   const [name, setName] = useState("");
-  const [subjects, setSubjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { subjects, loading, failed, reload } = useSubjects();
   const [history, setHistory] = useState([]);
   const [level, setLevel] = useLevel();
   const shown = subjects.filter((s) => (s.level || "A") === level);
-
-  useEffect(() => {
-    getSubjects()
-      .then((d) => setSubjects(d))
-      .catch(() => setSubjects([]))
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     if (candidate?.id) {
@@ -100,6 +92,8 @@ export default function Dashboard() {
 
         {loading ? (
           <div className="mt-10 flex items-center justify-center gap-2 text-slate-500"><Loader2 className="h-5 w-5 animate-spin" /> Memuat mata ujian...</div>
+        ) : failed ? (
+          <ServerError onRetry={reload} />
         ) : shown.length === 0 ? (
           <LevelEmpty level={level} />
         ) : (

@@ -48,3 +48,35 @@ export const LevelEmpty = ({ level }) => (
     <p className="mt-2 text-sm text-slate-600">Bank soal untuk tingkat ini sedang disiapkan. Silakan berlatih di tingkat lain terlebih dahulu.</p>
   </div>
 );
+
+export function useSubjects() {
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    setFailed(false);
+    const { getSubjects } = await import("../api");
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        setSubjects(await getSubjects());
+        setLoading(false);
+        return;
+      } catch {
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
+    setFailed(true);
+    setLoading(false);
+  }, []);
+  React.useEffect(() => { load(); }, [load]);
+  return { subjects, loading, failed, reload: load };
+}
+
+export const ServerError = ({ onRetry }) => (
+  <div data-testid="server-error-state" className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-10 text-center">
+    <div className="text-lg font-extrabold text-red-700">Server sedang tidak aktif</div>
+    <p className="mt-2 text-sm text-slate-600">Bank soal Anda aman tersimpan, tetapi data belum bisa dimuat. Tunggu sebentar lalu coba lagi.</p>
+    <button data-testid="server-retry-button" onClick={onRetry} className="mt-4 rounded-xl bg-indigo-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-900">Coba Lagi</button>
+  </div>
+);
