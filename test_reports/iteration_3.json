@@ -35,7 +35,7 @@
     "/app/test_reports/iteration_3.json"
   ],
   "success_rate": {"backend": "100% (28/28)", "frontend": "~95% — one visible bug (ExamFinished 'undefined'), everything else works"},
-  "test_credentials": "admin password admin123 (NOT changed). Candidate: any name on /dashboard, token 1234.",
+  "test_credentials": "admin password <ADMIN_PASSWORD> (NOT changed). Candidate: any name on /dashboard, token 1234.",
   "seed_data_creation": "Created TEST_UU_SAMPLE_PDF (deleted at end), TEST_SPT_SAMPLE_XLSX (soft-deleted in test), plus TEST_ exam sessions & results — all cleaned via mongosh (2 results, 2 sessions removed). Two pre-existing TEST_ regulations (TEST_SDSN_UU_PAJAK_2023, TEST_SPT_PPh_OP_Coretax) left attached to subject C-KUP as per request.",
   "retest_needed": false,
   "main_agent_can_self_test": true,

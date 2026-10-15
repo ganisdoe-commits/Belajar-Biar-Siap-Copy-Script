@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Backend API Test Suite for Belajar Biar Pintar
@@ -11,8 +12,8 @@ from typing import Dict, Any, Optional
 BASE_URL = "https://test-builder-119.preview.emergentagent.com/api"
 
 # Admin credentials
-ADMIN_PASSWORD = "admin123"
-EXPECTED_TOKEN = "bbp-admin-2026-secret-token"
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+EXPECTED_TOKEN = "legacy-static-token-revoked"
 
 # Test results tracking
 test_results = {

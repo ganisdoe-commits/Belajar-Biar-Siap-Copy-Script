@@ -1,0 +1,159 @@
+[
+ {
+  "id": "cd31e13d-fde7-42ee-9438-bea9b71428eb",
+  "title": "SDSN UU Pajak 2023",
+  "filename": "SDSN 2023 7.1_0.pdf",
+  "kind": "pdf",
+  "content_type": "application/pdf",
+  "size": 6983087,
+  "storage_path": "belajar-biar-pintar/regulations/cd31e13d-fde7-42ee-9438-bea9b71428eb.pdf",
+  "subject_ids": [
+   "4939497d-9910-4f82-acd2-43c9556e8509",
+   "a7280594-e10c-48e1-97b8-13275b5f9190",
+   "befa4910-939d-444f-b7e4-8f0f3e6d1acb",
+   "5a20dd05-aa2f-478a-9a55-4c08cbd970ec",
+   "833ca4da-136e-4a18-be6d-0700916bab42",
+   "c5f181c2-bb39-45eb-8488-83fb7ae9103e",
+   "d0852c1f-e3c6-4ccf-97f6-4c94f7e08315",
+   "9ebfff9d-2085-4a8c-952a-d619a83c90c3",
+   "3df428da-d344-4233-a900-a979d46f63dc",
+   "b68003f2-f9e9-43c7-b435-1078d3574406",
+   "c6c8cd89-9ae1-4199-bdf9-49c5ba8a48ae",
+   "d51e848d-802a-42ca-9cc5-c027c3c47f07",
+   "a383df7c-0096-41e9-be74-212432c56fee",
+   "5053ae51-acad-4ac7-a3f2-2c9ffe5953cd",
+   "85f1a3ac-c52a-4464-8af0-3d3257022eff"
+  ],
+  "order": 1,
+  "is_deleted": false,
+  "created_at": "2026-10-12T06:03:35.190628+00:00",
+  "local_file": "files/cd31e13d-fde7-42ee-9438-bea9b71428eb.pdf"
+ },
+ {
+  "id": "e6ccf719-e348-4b9d-b49e-ce758b800b3e",
+  "title": "UU PPSP (UU Nomor 19 Tahun 2000)",
+  "filename": "UU 19 2000_UU PPSP.pdf",
+  "kind": "pdf",
+  "content_type": "application/pdf",
+  "size": 64428,
+  "storage_path": "belajar-biar-pintar/regulations/e6ccf719-e348-4b9d-b49e-ce758b800b3e.pdf",
+  "subject_ids": [
+   "a7280594-e10c-48e1-97b8-13275b5f9190",
+   "d0852c1f-e3c6-4ccf-97f6-4c94f7e08315",
+   "85f1a3ac-c52a-4464-8af0-3d3257022eff"
+  ],
+  "order": 2,
+  "is_deleted": false,
+  "created_at": "2026-10-12T06:03:35.735576+00:00",
+  "local_file": "files/e6ccf719-e348-4b9d-b49e-ce758b800b3e.pdf"
+ },
+ {
+  "id": "10e75135-c1c4-465e-8402-f0d9251b076f",
+  "title": "Lampiran Tarif PP 58/2023",
+  "filename": "Lampiran Tarif PP 58_2023.pdf",
+  "kind": "pdf",
+  "content_type": "application/pdf",
+  "size": 2686847,
+  "storage_path": "belajar-biar-pintar/regulations/10e75135-c1c4-465e-8402-f0d9251b076f.pdf",
+  "subject_ids": [
+   "befa4910-939d-444f-b7e4-8f0f3e6d1acb",
+   "9ebfff9d-2085-4a8c-952a-d619a83c90c3",
+   "4939497d-9910-4f82-acd2-43c9556e8509",
+   "c5f181c2-bb39-45eb-8488-83fb7ae9103e",
+   "5053ae51-acad-4ac7-a3f2-2c9ffe5953cd"
+  ],
+  "order": 3,
+  "is_deleted": false,
+  "created_at": "2026-10-12T06:03:36.815606+00:00",
+  "local_file": "files/10e75135-c1c4-465e-8402-f0d9251b076f.pdf"
+ },
+ {
+  "id": "88ffd061-e5ab-4112-83dc-69011322bedf",
+  "title": "Lampiran PER-11/PJ/2025",
+  "filename": "Lampiran PER-11 PJ 2025.pdf",
+  "kind": "pdf",
+  "content_type": "application/pdf",
+  "size": 29744045,
+  "storage_path": "belajar-biar-pintar/regulations/88ffd061-e5ab-4112-83dc-69011322bedf.pdf",
+  "subject_ids": [
+   "befa4910-939d-444f-b7e4-8f0f3e6d1acb",
+   "9ebfff9d-2085-4a8c-952a-d619a83c90c3",
+   "5a20dd05-aa2f-478a-9a55-4c08cbd970ec",
+   "3df428da-d344-4233-a900-a979d46f63dc"
+  ],
+  "order": 4,
+  "is_deleted": false,
+  "created_at": "2026-10-12T06:03:40.750329+00:00",
+  "local_file": "files/88ffd061-e5ab-4112-83dc-69011322bedf.pdf"
+ },
+ {
+  "id": "21591785-12d5-43f9-a0db-b2fb7f576449",
+  "title": "Formulir SPT Tahunan PPh Orang Pribadi 2025",
+  "filename": "Formulir SPT Tahunan Orang Pribadi 2025.pdf",
+  "kind": "pdf",
+  "content_type": "application/pdf",
+  "size": 184200,
+  "storage_path": "belajar-biar-pintar/regulations/21591785-12d5-43f9-a0db-b2fb7f576449.pdf",
+  "subject_ids": [
+   "4939497d-9910-4f82-acd2-43c9556e8509",
+   "c5f181c2-bb39-45eb-8488-83fb7ae9103e",
+   "5053ae51-acad-4ac7-a3f2-2c9ffe5953cd"
+  ],
+  "order": 5,
+  "is_deleted": false,
+  "created_at": "2026-10-12T06:03:41.352663+00:00",
+  "local_file": "files/21591785-12d5-43f9-a0db-b2fb7f576449.pdf"
+ },
+ {
+  "id": "50fa4e73-b8e0-44d8-934b-04e2726154d3",
+  "title": "UU Pengadilan Pajak (UU Nomor 14 Tahun 2002)",
+  "filename": "UU 14 2002_UU Pengadilan Pajak.pdf",
+  "kind": "pdf",
+  "content_type": "application/pdf",
+  "size": 251845,
+  "storage_path": "belajar-biar-pintar/regulations/50fa4e73-b8e0-44d8-934b-04e2726154d3.pdf",
+  "subject_ids": [
+   "a7280594-e10c-48e1-97b8-13275b5f9190",
+   "d0852c1f-e3c6-4ccf-97f6-4c94f7e08315",
+   "85f1a3ac-c52a-4464-8af0-3d3257022eff"
+  ],
+  "order": 6,
+  "is_deleted": false,
+  "created_at": "2026-10-12T11:10:04.440930+00:00",
+  "local_file": "files/50fa4e73-b8e0-44d8-934b-04e2726154d3.pdf"
+ },
+ {
+  "id": "644c101a-82b6-4192-ad53-8c87cfd0e3b0",
+  "title": "SPT Masa PPN & Faktur Pajak (Lampiran PER-11/PJ/2025)",
+  "filename": "SPT Masa PPN dan Faktur Pajak - Lampiran PER-11 PJ 2025.pdf",
+  "kind": "pdf",
+  "content_type": "application/pdf",
+  "size": 1638432,
+  "storage_path": "belajar-biar-pintar/regulations/644c101a-82b6-4192-ad53-8c87cfd0e3b0.pdf",
+  "subject_ids": [
+   "5a20dd05-aa2f-478a-9a55-4c08cbd970ec",
+   "3df428da-d344-4233-a900-a979d46f63dc"
+  ],
+  "order": 7,
+  "is_deleted": false,
+  "created_at": "2026-10-12T11:10:37.278111+00:00",
+  "local_file": "files/644c101a-82b6-4192-ad53-8c87cfd0e3b0.pdf"
+ },
+ {
+  "id": "4c781457-c22a-4dfd-866f-2845c4f4ad20",
+  "title": "Formulir SPT Tahunan PPh Badan (PER-11/PJ/2025)",
+  "filename": "Formulir SPT Tahunan PPh Badan - PER 11.xlsx",
+  "kind": "excel",
+  "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "size": 1194243,
+  "storage_path": "belajar-biar-pintar/regulations/4c781457-c22a-4dfd-866f-2845c4f4ad20.xlsx",
+  "subject_ids": [
+   "a383df7c-0096-41e9-be74-212432c56fee",
+   "d51e848d-802a-42ca-9cc5-c027c3c47f07"
+  ],
+  "order": 8,
+  "is_deleted": false,
+  "created_at": "2026-10-12T11:10:38.578325+00:00",
+  "local_file": "files/4c781457-c22a-4dfd-866f-2845c4f4ad20.xlsx"
+ }
+]

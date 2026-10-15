@@ -1,5 +1,5 @@
 {
-  "summary": "Frontend-only retest of subject-loading error handling. Verified: (1) /dashboard & /esai load subjects with correct level counts A=5, B=8, C=2 and show subject-grid/essay-subject-grid; (2) Simulated backend outage via page.route abort on **/api/subjects — after ~6s the retry loop finishes and server-error-state (NOT level-empty-state 'segera hadir') is shown on both /dashboard and /esai, with the server-retry-button visible; (3) After unroute, clicking server-retry-button reloads subjects correctly (tab counts restored to 5/8/2, server-error cleared, grid rendered); (4) Starting exam on first Tingkat A subject through pre-exam flow (integrity-agree-checkbox, token 1234, start-exam-button, guide-continue-button) renders the exam with 'Soal No. 1 / 40' and the Ekstra Konten panel listing 'SDSN UU PAJAK 2023', 'LAMPIRAN TARIF PP 58/2023', 'FORMULIR SPT TAHUNAN PPH ORANG PRIBADI 2025'; (5) Admin /admin login with admin123 → Peraturan tab shows exactly 8 stored documents (8 regulation-row-* testids / 8 Lihat buttons).",
+  "summary": "Frontend-only retest of subject-loading error handling. Verified: (1) /dashboard & /esai load subjects with correct level counts A=5, B=8, C=2 and show subject-grid/essay-subject-grid; (2) Simulated backend outage via page.route abort on **/api/subjects — after ~6s the retry loop finishes and server-error-state (NOT level-empty-state 'segera hadir') is shown on both /dashboard and /esai, with the server-retry-button visible; (3) After unroute, clicking server-retry-button reloads subjects correctly (tab counts restored to 5/8/2, server-error cleared, grid rendered); (4) Starting exam on first Tingkat A subject through pre-exam flow (integrity-agree-checkbox, token 1234, start-exam-button, guide-continue-button) renders the exam with 'Soal No. 1 / 40' and the Ekstra Konten panel listing 'SDSN UU PAJAK 2023', 'LAMPIRAN TARIF PP 58/2023', 'FORMULIR SPT TAHUNAN PPH ORANG PRIBADI 2025'; (5) Admin /admin login with <ADMIN_PASSWORD> → Peraturan tab shows exactly 8 stored documents (8 regulation-row-* testids / 8 Lihat buttons).",
   "backend_issues": {"critical": [], "minor": []},
   "frontend_issues": {
     "ui_bugs": [],
@@ -14,7 +14,7 @@
   ],
   "updated_files": [],
   "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
-  "test_credentials": "Admin password admin123; candidate login any name; pre-exam token 1234. From /app/memory/test_credentials.md.",
+  "test_credentials": "Admin password <ADMIN_PASSWORD>; candidate login any name; pre-exam token 1234. From /app/memory/test_credentials.md.",
   "seed_data_creation": "None. One candidate 'TEST_Agent' saved only in localStorage of ephemeral browser context; one exam session was started but not submitted (may leave an in-progress exam_sessions row — negligible, not in results).",
   "retest_needed": false,
   "main_agent_can_self_test": true,

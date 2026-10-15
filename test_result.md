@@ -183,13 +183,13 @@ backend:
     status_history:
         -working: "NA"
         -agent: "main"
-        -comment: "POST /api/admin/login (password=admin123 -> token). All /api/admin/* require Bearer ADMIN_TOKEN. CRUD + bulk + results."
+        -comment: "POST /api/admin/login (password=<ADMIN_PASSWORD> -> token). All /api/admin/* require Bearer ADMIN_TOKEN. CRUD + bulk + results."
         -working: true
         -agent: "testing"
-        -comment: "✅ TESTED: POST /api/admin/login with correct password returns 200 with token 'bbp-admin-2026-secret-token'. Wrong password returns 401. Admin endpoints without auth return 401. Admin endpoints with Bearer token return 200. GET /api/admin/questions includes 'answer' field (verified). CRUD operations tested: POST/PUT/DELETE for questions, essays, subjects - all working. Bulk import: POST /api/admin/questions/bulk successfully inserted 2 questions. GET /api/admin/results returns all saved results. DELETE subject cascades to questions/essays. All 50 tests passed."
+        -comment: "✅ TESTED: POST /api/admin/login with correct password returns 200 with token '<legacy-token>'. Wrong password returns 401. Admin endpoints without auth return 401. Admin endpoints with Bearer token return 200. GET /api/admin/questions includes 'answer' field (verified). CRUD operations tested: POST/PUT/DELETE for questions, essays, subjects - all working. Bulk import: POST /api/admin/questions/bulk successfully inserted 2 questions. GET /api/admin/results returns all saved results. DELETE subject cascades to questions/essays. All 50 tests passed."
         -working: true
         -agent: "testing"
-        -comment: "✅ RE-TESTED: Admin login works (password=admin123, token=bbp-admin-2026-secret-token). GET /api/admin/questions?subject_id={kup_id} with Bearer token returns 100 questions WITH 'answer' field. All checks passed."
+        -comment: "✅ RE-TESTED: Admin login works (password=<ADMIN_PASSWORD>, token=<legacy-token>). GET /api/admin/questions?subject_id={kup_id} with Bearer token returns 100 questions WITH 'answer' field. All checks passed."
 
 frontend:
   - task: "Frontend integration with backend API"
@@ -229,7 +229,7 @@ test_plan:
 
 agent_communication:
     -agent: "main"
-    -message: "RETEST needed after changes: (1) GET /api/subjects/{id}/exam now returns a RANDOM sample of examCount (default 40) questions from the bank (KUP has 100 questions, examCount=40, so exam should return exactly 40, no 'answer'/'pembahasan' leaked). (2) Public subjects now include bankSize, examCount, and totalQuestions=min(examCount,bankSize). (3) POST /api/exam/submit now accepts question_ids (list of presented question ids); scoring must be based ONLY on those (total=len(question_ids)); score=round(correct/total*100,2), passed>=60; review returned for those ids. Backward compat: if question_ids empty, score against all. Admin endpoints unchanged (password admin123, Bearer bbp-admin-2026-secret-token). KUP subject now has 100 MCQ + 25 essays imported. Please focus on exam sampling + submit scoring with question_ids."
+    -message: "RETEST needed after changes: (1) GET /api/subjects/{id}/exam now returns a RANDOM sample of examCount (default 40) questions from the bank (KUP has 100 questions, examCount=40, so exam should return exactly 40, no 'answer'/'pembahasan' leaked). (2) Public subjects now include bankSize, examCount, and totalQuestions=min(examCount,bankSize). (3) POST /api/exam/submit now accepts question_ids (list of presented question ids); scoring must be based ONLY on those (total=len(question_ids)); score=round(correct/total*100,2), passed>=60; review returned for those ids. Backward compat: if question_ids empty, score against all. Admin endpoints unchanged (password <ADMIN_PASSWORD>, Bearer <legacy-token>). KUP subject now has 100 MCQ + 25 essays imported. Please focus on exam sampling + submit scoring with question_ids."
     -agent: "testing"
     -message: "✅ ALL 50 BACKEND TESTS PASSED! Comprehensive testing completed: (1) Public endpoints: subjects list/detail, exam retrieval, exam submission with scoring, essays, results by candidate - all working. (2) CRITICAL SECURITY: Verified exam endpoint does NOT leak answer/pembahasan fields. (3) Scoring logic verified: correct/total*100, passed>=60, counts consistent. (4) Admin auth: login working, wrong password returns 401, protected endpoints require Bearer token. (5) Admin CRUD: questions, essays, subjects - create/update/delete all working. (6) Bulk import: successfully inserted multiple questions. (7) Admin results endpoint working. Backend is production-ready. Frontend integration can proceed."
     -agent: "testing"

@@ -21,7 +21,7 @@
     "/app/backend/tests/test_v3_candidate_sessions.py (new)"
   ],
   "success_rate": {"backend": "100% (16/16)", "frontend": "100%"},
-  "test_credentials": "Admin admin123; candidates auto-registered via POST /api/candidates (TEST_ prefix); token 1234.",
+  "test_credentials": "Admin <ADMIN_PASSWORD>; candidates auto-registered via POST /api/candidates (TEST_ prefix); token 1234.",
   "seed_data_creation": "Transient only: TEST_ candidates + their exam_sessions/results and a transient TEST_Snapshot subject; all removed in test_cleanup + post-run DB sweep (results=0, sessions=2, candidates=2, subjects=0 remaining stragglers removed).",
   "retest_needed": false,
   "main_agent_can_self_test": true,

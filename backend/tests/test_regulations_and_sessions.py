@@ -26,7 +26,7 @@ CHUNK = 4 * 1024 * 1024
 
 @pytest.fixture(scope="module")
 def admin_token():
-    r = requests.post(f"{API}/admin/login", json={"password": "admin123"}, timeout=30)
+    r = requests.post(f"{API}/admin/login", json={"password": os.environ["ADMIN_PASSWORD"]}, timeout=30)
     if r.status_code != 200:
         pytest.skip(f"admin login failed: {r.status_code} {r.text}")
     return r.json()["token"]

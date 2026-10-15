@@ -26,7 +26,7 @@ BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/") or _read_env(
 API = f"{BASE_URL}/api"
 MONGO_URL = _read_env("/app/backend/.env", "MONGO_URL")
 DB_NAME = _read_env("/app/backend/.env", "DB_NAME")
-GOOD_PW = "admin123"
+GOOD_PW = os.environ["ADMIN_PASSWORD"]
 
 db = MongoClient(MONGO_URL)[DB_NAME]
 

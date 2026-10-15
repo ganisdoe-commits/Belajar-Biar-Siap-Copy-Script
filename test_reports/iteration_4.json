@@ -33,7 +33,7 @@
     "/app/test_reports/iteration_4.json"
   ],
   "success_rate": {"backend": "100% on new feature (5/5) and 100% on 2026-era regression (28/28 regs+session + 9 new-features regression that have the fixture); overall this run 45/49 counting the 4 env-missing-fixture failures as failures", "frontend": "100% of requested flows pass"},
-  "test_credentials": "admin password admin123 (unchanged). Candidate: any name via /dashboard, token 1234.",
+  "test_credentials": "admin password <ADMIN_PASSWORD> (unchanged). Candidate: any name via /dashboard, token 1234.",
   "seed_data_creation": "Created and then deleted: TEST_Agent4, TEST_Agent4b, TEST_Agent4e, TEST_m candidate names (8 exam_sessions + 8 results removed via motor delete_many on candidate_name ^TEST_). No regulations or subjects touched.",
   "retest_needed": false,
   "main_agent_can_self_test": true,

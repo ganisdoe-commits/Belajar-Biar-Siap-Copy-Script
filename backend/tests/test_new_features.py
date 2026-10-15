@@ -2,7 +2,7 @@
 
 Covers:
 - Admin JWT auth (/admin/login, /admin/me, old static token rejected, brute force 429)
-- Change password validation + token rotation (and restore to admin123)
+- Change password validation + token rotation (and restore to ADMIN_PASSWORD)
 - Import preview (valid, bad, empty, txt, unauth)
 - Import commit (existing subject replace; new subject create+delete; unknown draft 404)
 - Exam submit returns materi_stats and no leak on /exam
@@ -37,8 +37,8 @@ API = f"{BASE_URL}/api"
 MONGO_URL = _read_env("/app/backend/.env", "MONGO_URL")
 DB_NAME = _read_env("/app/backend/.env", "DB_NAME")
 
-OLD_STATIC_TOKEN = "bbp-admin-2026-secret-token"
-GOOD_PW = "admin123"
+OLD_STATIC_TOKEN = "legacy-static-token-revoked"
+GOOD_PW = os.environ["ADMIN_PASSWORD"]
 
 
 def _reset_login_attempts():
@@ -143,7 +143,7 @@ def test_change_password_full_flow():
     assert r.status_code == 401
     _reset_login_attempts()
 
-    # RESTORE back to admin123 directly in DB (API disallows <10-char password).
+    # RESTORE back to ADMIN_PASSWORD directly in DB (API disallows <10-char password).
     try:
         from pymongo import MongoClient
         import bcrypt
@@ -155,7 +155,7 @@ def test_change_password_full_flow():
     except Exception as e:
         pytest.fail(f"Could not restore admin password in DB: {e}")
     _reset_login_attempts()
-    # verify admin123 works again
+    # verify ADMIN_PASSWORD works again
     r = requests.post(f"{API}/admin/login", json={"password": GOOD_PW}, timeout=30)
     assert r.status_code == 200
 

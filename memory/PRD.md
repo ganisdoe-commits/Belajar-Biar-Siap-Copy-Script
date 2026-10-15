@@ -56,3 +56,10 @@ Simulator latihan CAT USKP (bukan ujian resmi/proctored) untuk dijual ke publik:
 ## Update — Rebrand tagline (Jun 2026)
 - Nama aplikasi: "Belajar Biar Pintar" → "Belajar Biar Siap" (Navbar, Footer, Admin login/dashboard, backend API title, PROTOTYPE.md). Subjudul tetap "Ujian Kompetensi Pajak".
 - Hero beranda: "Sering Berlatih Biar Semakin Siap / Siap Untuk Maju… Siap Untuk Sukses" (menggantikan "Belajar Cerdas, Maju Bertahap"). data-testid="hero-tagline".
+
+## Update — Backup data ke repo + skrip rebuild (Jun 2026)
+- /app/data/: subjects.json, questions.json, essays.json, regulations.json (+local_file), files/ (8 PDF/Excel, ~44 MB), manifest.json.
+- backend/export_data.py (refresh salinan), backend/restore_data.py (pulihkan ke DB; --no-files), backend/setup_env.py (buat .env baru + password admin & JWT acak), .env.example (backend/frontend), /app/REBUILD.md.
+- Restore diuji ke DB terpisah: 15/1500/375 identik, file roundtrip OK.
+- Password admin literal dihapus dari tests (pakai os.environ["ADMIN_PASSWORD"]), auth_testing.md, test_result.md, test_reports. Tersisa di memory/test_credentials.md (wajib platform) — user disarankan Ganti Password di admin.
+- Repo GitHub: Privat (keputusan user). Secrets tidak di-commit.

@@ -8,7 +8,7 @@ BASE = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
 
 @pytest.fixture(scope="module")
 def admin_token():
-    r = requests.post(f"{BASE}/api/admin/login", json={"password": "admin123"}, timeout=15)
+    r = requests.post(f"{BASE}/api/admin/login", json={"password": os.environ["ADMIN_PASSWORD"]}, timeout=15)
     if r.status_code != 200:
         pytest.skip(f"admin login failed {r.status_code}: {r.text}")
     return r.json()["token"]

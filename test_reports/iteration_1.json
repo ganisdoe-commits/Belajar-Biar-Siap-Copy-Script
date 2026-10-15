@@ -21,7 +21,7 @@
     "/app/backend/tests/backend_test.py"
   ],
   "success_rate": {"backend": "100% (8/8)", "frontend": "100% of flows exercised"},
-  "test_credentials": "Admin password admin123 via POST /api/admin/login (bearer token bbp-admin-2026-secret-token). Candidate: any name on /dashboard. Pre-exam valid tokens: USKP2026, CAT-A1, KEMENKEU.",
+  "test_credentials": "Admin password <ADMIN_PASSWORD> via POST /api/admin/login (bearer token <legacy-token>). Candidate: any name on /dashboard. Pre-exam valid tokens: USKP2026, CAT-A1, KEMENKEU.",
   "seed_data_creation": "Created test results via /api/exam/submit with candidate_id prefix 'TEST_' and candidate name 'TEST_Candidate'/'TEST_FlowD' etc. Real question/essay bank untouched. These test results persist in db.results but are harmless.",
   "retest_needed": false,
   "main_agent_can_self_test": true,
